@@ -8,15 +8,6 @@ class SRC(commands.Cog):
    def __init__ (self, client):
       self.client = client
    
-   @commands.command(aliases=['PB', 'best', 'personalbest'])
-   async def pb(self, ctx, game=None, category=None)
-      with urllib.request.urlopen('https://www.speedrun.com/api/v1/users/18q2o608/personal-bests') as url:
-         data = json.loads(url.read().decode())
-      
-      data = data['data']
-      
-      
-   
    @tasks.loop(hours=1.0)
    async def checkPBs (self):
       with urllib.request.urlopen('https://www.speedrun.com/api/v1/users/18q2o608/personal-bests') as url:
@@ -28,9 +19,9 @@ class SRC(commands.Cog):
          verified_date = datetime.strptime(record['run']['status']['verify-date'][:10] + ' ' + record['run']['status']['verify-date'][11:-1], '%Y-%m-%d %H:%M:%S')
       
          #If verified less than an hour ago
-         if record['run']['status']['status'] == 'verified' and datetime.now() - timedelta(hours=1) <= verified_date <= datetime.now():
+         if record['run']['status']['status'] == 'verified' and datetime.utcnow() - timedelta(hours=1) <= verified_date <= datetime.utcnow():
             link = record['run']['weblink']
-            verified_date = verified_date.strftime('%b %#d, %Y at %#I:%M %p')
+            verified_date = verified_date.strftime('%b %#d, %Y at %H:%M')
             
             if record['place'] < 4:
                if record['place'] == 1:
@@ -82,12 +73,11 @@ class SRC(commands.Cog):
             
             category = categoryinfo['name']
             
-            embed=discord.Embed(title=f'New Personal Best at {time}!', url=link, description=f'Will has set a new PB in {game} and is now {place} on the leaderboard.', color=0x55c5c6)
+            embed=discord.Embed(title=f'New Personal Best at {time}!', url=link, description=f'Will has set a new PB for {game} - {category} and is now {place} on the leaderboard.', color=0x55c5c6)
             embed.set_author(name='will-am-I', icon_url='https://www.speedrun.com/themes/user/will_am_I/image.png')
             embed.set_thumbnail(url=cover)
-            embed.set_footer(text=f'Run verified {verified_date}.')
-            await ctx.send(embed=embed)
+            embed.set_footer(text=f'Run verified {verified_date} UTC.')
+            await self.client.send(embed=embed)
             
-   
 def setup (client):
    client.add_cog(SRC(client))

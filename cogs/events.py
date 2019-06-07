@@ -9,18 +9,19 @@ class Events(commands.Cog):
    #Ready
    @commands.Cog.listener()
    async def on_ready(self):
-      await self.client.change_presence(status=discord.Status.idle, activity=discord.Game('just a bot boy from a bot family'))
+      await self.client.change_presence(activity=discord.Game('just a bot boy from a bot family'))
       print('bot-am-i is here')
    
    #Member join
    @commands.Cog.listener()
    async def on_member_join(self, member):
-      print(f'{member} has joined the server.');
+      await self.client.get_channel(585867244056346646).send('Hello')
+      print(f'{member} has joined the server.')
       
-   #Member join
+   #Member leave
    @commands.Cog.listener()
    async def on_member_remove(self, member):
-      print(f'{member} has left the server.');
+      print(f'{member} has left the server.')
       
 def setup (client):
    client.add_cog(Events(client))
