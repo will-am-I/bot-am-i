@@ -1,8 +1,11 @@
 import discord
 from discord.ext import commands
-import os
+import os, json
 
 client = commands.Bot(command_prefix = '!')
+
+with open('./cogs/config.json') as data:
+   config = json.load(data)
 
 @client.command()
 async def load(ctx, extension):
@@ -27,4 +30,4 @@ for filename in os.listdir('./cogs'):
    if filename.endswith('.py'):
       client.load_extension(f'cogs.{filename[:-3]}')
 
-client.run('NTg1NTcxNjQyMzExMzExNDQ4.XPfmJA._XEhpGt2sss7rPLyOIzO8q1DHX4')
+client.run(config['discord_id'])
