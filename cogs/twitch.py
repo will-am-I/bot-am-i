@@ -3,9 +3,8 @@ from discord.ext import commands, tasks
 import urllib.request, json, requests
 from datetime import datetime, timedelta
 
-token = '86n0tvtsz8ytubcjthp3l5oic2wx48'
-client_id = '0o51ky43x9haa5pp5lpdy4p1zwbvz7'
-client_secret = '88v5ovo9tfd202xy5yoj5hstugjn1a'
+with open('./cogs/config.json') as data:
+   config = json.load(data)
 
 class Twitch(commands.Cog):
 
@@ -16,7 +15,7 @@ class Twitch(commands.Cog):
    async def checkPBs (self):
       try:
          url = 'https://api.twitch.tv/helix/streams?user_login=will_am_I_'
-         header = {'Client-ID': client_id, 'Authorization': 'Bearer 86n0tvtsz8ytubcjthp3l5oic2wx48'}
+         header = {'Client-ID': config['twitch_id'], 'Authorization': 'Bearer ' + config['twitch_token']}
          request = urllib.request.Request(url, headers=header)
 
          with urllib.request.urlopen(request) as streamurl:
@@ -24,12 +23,12 @@ class Twitch(commands.Cog):
       except urllib.error.HTTPError as e:
          if e.code == 401:
             endpoint = 'https://id.twitch.tv/oauth2/token'
-            data = {'client_id': client_id, 'client_secret': client_secret, 'grant_type': 'client_credentials', 'scope': 'analytics:read:games user:read:broadcast'}
+            data = {'client_id': config['twitch_id'], 'client_secret': config['twitch_secret'], 'grant_type': 'client_credentials', 'scope': 'analytics:read:games user:read:broadcast'}
             request = requests.post(url=endpoint, data=data)
             token = request['access_token']
 
             url = 'https://api.twitch.tv/helix/streams?user_login=will_am_I_'
-            header = {'Client-ID': client_id, 'Authorization': 'Bearer ' + token}
+            header = {'Client-ID': config['twitch_id'], 'Authorization': 'Bearer ' + token}
             request = urllib.request.Request(url, headers=header)
 
             with urllib.request.urlopen(request) as streamurl:

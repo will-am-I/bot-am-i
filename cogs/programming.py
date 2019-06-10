@@ -4,7 +4,7 @@ from discord.ext import commands
 WILL_ID = 320246151196704768
 
 class Programming(commands.Cog):
-   
+
    def __init__ (self, client):
       self.client = client
    
@@ -27,6 +27,11 @@ class Programming(commands.Cog):
    async def roleid(self, ctx, role : discord.Role):
       if ctx.message.author.id == WILL_ID:
          await ctx.send(f'{role.id}')
+
+   @commands.command(aliases=['voiceid'])
+   async def voicechannelid(self, ctx, channel : discord.VoiceChannel):
+      if ctx.message.author.id == WILL_ID:
+         await ctx.send(f'{channel.id}')
    
 def setup (client):
    client.add_cog(Programming(client))
