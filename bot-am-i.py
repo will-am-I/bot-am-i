@@ -3,6 +3,7 @@ from discord.ext import commands
 import os, json
 
 client = commands.Bot(command_prefix = '!')
+client.remove_command('help')
 
 with open('./cogs/config.json') as data:
    config = json.load(data)
