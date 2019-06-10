@@ -8,18 +8,21 @@ class Moderation(commands.Cog):
    def __init__ (self, client):
       self.client = client
    
+   #Kick Member
    @commands.command()
    async def kick(self, ctx, member : discord.Member, *, reason=None):
       if ctx.message.author.role.id == MODERATOR_ID:
          await ctx.send(f'{member} kicked for {reason}')
          await member.kick(reason=reason)
-      
+   
+   #Ban Member
    @commands.command()
    async def ban(self, ctx, member : discord.Member, *, reason=None):
       if ctx.message.author.role.id == MODERATOR_ID:
          await ctx.send(f'{member} banned for {reason}')
          await member.ban(reason=reason)
    
+   #Unban Member
    @commands.command()
    async def unban(self, ctx, *, member):
       if ctx.message.author.role.id == MODERATOR_ID:

@@ -11,6 +11,7 @@ class Twitch(commands.Cog):
    def __init__ (self, client):
       self.client = client
    
+   #Twitch Live Check (Every 5 Minutes)
    @tasks.loop(minutes=5.0)
    async def checkPBs (self):
       try:

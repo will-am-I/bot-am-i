@@ -8,7 +8,7 @@ class SRC(commands.Cog):
    def __init__ (self, client):
       self.client = client
    
-   @tasks.loop(hours=1.0)
+   @tasks.loop(minutes=10.0)
    async def checkPBs (self):
       with urllib.request.urlopen('https://www.speedrun.com/api/v1/users/18q2o608/personal-bests') as url:
          data = json.loads(url.read().decode())
@@ -19,7 +19,7 @@ class SRC(commands.Cog):
          verified_date = datetime.strptime(record['run']['status']['verify-date'][:10] + ' ' + record['run']['status']['verify-date'][11:-1], '%Y-%m-%d %H:%M:%S')
       
          #If verified less than an hour ago
-         if record['run']['status']['status'] == 'verified' and datetime.utcnow() - timedelta(hours=1) <= verified_date <= datetime.utcnow():
+         if record['run']['status']['status'] == 'verified' and datetime.utcnow() - timedelta(minutes=10) <= verified_date <= datetime.utcnow():
             link = record['run']['weblink']
             verified_date = verified_date.strftime('%b %#d, %Y at %H:%M')
             
