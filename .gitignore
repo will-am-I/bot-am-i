@@ -115,3 +115,4 @@ dmypy.json
 cogs/config.json
 cogs/config.json
 *.json
+start.bat
