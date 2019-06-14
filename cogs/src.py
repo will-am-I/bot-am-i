@@ -7,9 +7,13 @@ class SRC(commands.Cog):
 
    def __init__ (self, client):
       self.client = client
+      self.checkPersonalBests.start()
+
+   def cog_unload (self):
+      self.checkPersonalBests.cancel()
    
    @tasks.loop(minutes=10.0)
-   async def checkPBs (self):
+   async def checkPersonalBests (self):
       print("src -> loop")
       with urllib.request.urlopen('https://www.speedrun.com/api/v1/users/18q2o608/personal-bests') as url:
          data = json.loads(url.read().decode())
@@ -76,12 +80,13 @@ class SRC(commands.Cog):
             
             category = categoryinfo['name']
             
-            embed=discord.Embed(title=f'New Personal Best at {time}!', url=link, description=f'Will has set a new PB for {game} - {category} and is now {place} on the leaderboard.', color=0x55c5c6)
-            embed.set_author(name='will-am-I', icon_url='https://www.speedrun.com/themes/user/will_am_I/image.png')
-            embed.set_thumbnail(url=cover)
-            embed.set_footer(text=f'Run verified {verified_date} UTC.')
-            await self.client.send(embed=embed)
-            print("src -> posted new pb")
+            if category != "Individual Level":
+               embed=discord.Embed(title=f'New Personal Best at {time}!', url=link, description=f'Will has set a new PB for {game} - {category} and is now {place} on the leaderboard.', color=0x55c5c6)
+               embed.set_author(name='will-am-I', icon_url='https://www.speedrun.com/themes/user/will_am_I/image.png')
+               embed.set_thumbnail(url=cover)
+               embed.set_footer(text=f'Run verified {verified_date} UTC.')
+               await self.client.send(embed=embed)
+               print("src -> posted new pb")
             
 def setup (client):
    client.add_cog(SRC(client))

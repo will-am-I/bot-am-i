@@ -10,10 +10,14 @@ class Twitch(commands.Cog):
 
    def __init__ (self, client):
       self.client = client
+      self.checkStream.start()
    
+   def cog_unload (self):
+      self.checkStream.cancel()
+
    #Twitch Live Check (Every 5 Minutes)
    @tasks.loop(minutes=5.0)
-   async def checkPBs (self):
+   async def checkStream (self):
       print("twitch -> loop")
       try:
          url = 'https://api.twitch.tv/helix/streams?user_login=will_am_I_'
