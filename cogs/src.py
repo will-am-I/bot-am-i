@@ -34,7 +34,7 @@ class SRC(commands.Cog):
 
          verified_date = datetime.strptime(record['run']['status']['verify-date'][:10] + ' ' + record['run']['status']['verify-date'][11:-1], '%Y-%m-%d %H:%M:%S')
       
-         #If verified less than an hour ago
+         #If verified less than 10 minutes ago
          if record['run']['status']['status'] == 'verified' and datetime.utcnow() - timedelta(minutes=10) <= verified_date <= datetime.utcnow():
             print("src -> found new pb")
             link = record['run']['weblink']
