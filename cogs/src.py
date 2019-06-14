@@ -110,7 +110,7 @@ class SRC(commands.Cog):
             
                category = categoryinfo['name']
             
-            embed=discord.Embed(title=f'New Personal Best at {time}!', url=link, description=f'Will has set a new PB for {game} - {category} and is now {place} on the leaderboard.', color=0x55c5c6)
+            embed=discord.Embed(title=f'New Personal Best at {time}!', url=link, description=f'Will has set a new PB for\n**{game}** - ***{category}***\nand is now {place} on the leaderboard.', color=0x55c5c6)
             embed.set_author(name='will-am-I', icon_url='https://www.speedrun.com/themes/user/will_am_I/image.png')
             embed.set_thumbnail(url=cover)
             embed.set_footer(text=f'Run verified {verified_date} UTC.')

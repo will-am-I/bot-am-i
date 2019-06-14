@@ -12,7 +12,7 @@ class Programming(commands.Cog):
    @commands.command()
    async def test(self, ctx):
       if ctx.message.author.id == WILL_ID:
-         await self.client.get_channel(588934917551947787).send("Test")
+         await ctx.send("***Test***")
    
    #Get Text Channel ID
    @commands.command(aliases=['textid'])
