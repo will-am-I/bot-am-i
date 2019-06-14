@@ -15,13 +15,23 @@ class SRC(commands.Cog):
    @tasks.loop(minutes=10.0)
    async def checkPersonalBests (self):
       print("src -> loop")
-      with urllib.request.urlopen('https://www.speedrun.com/api/v1/users/18q2o608/personal-bests') as url:
-         data = json.loads(url.read().decode())
+      with urllib.request.urlopen('https://www.speedrun.com/api/v1/users/18q2o608/personal-bests') as pbjson:
+         data = json.loads(pbjson.read().decode())['data']
          
-      data = data['data']
-      
       for record in data:
          print("src -> pb record")
+         link = ''
+         place = ''
+         time = ''
+         gameurl = ''
+         categoryurl = ''
+         levelurl = ''
+         category = ''
+         level = ''
+         levelid = ''
+         stage = ''
+         stageid = ''
+
          verified_date = datetime.strptime(record['run']['status']['verify-date'][:10] + ' ' + record['run']['status']['verify-date'][11:-1], '%Y-%m-%d %H:%M:%S')
       
          #If verified less than an hour ago
@@ -68,25 +78,42 @@ class SRC(commands.Cog):
                   gameurl = weblink['uri']
                if weblink['rel'] == 'category':
                   categoryurl = weblink['uri']
+               if weblink['rel'] == 'level':
+                  levelurl = weblink['uri']
                   
-            with urllib.request.urlopen(gameurl) as gameurl:
-               gameinfo = json.loads(gameurl.read().decode())
+            with urllib.request.urlopen(gameurl) as gamejson:
+               gameinfo = json.loads(gamejson.read().decode())
             
             game = gameinfo['data']['names']['twitch']
             cover = gameinfo['data']['cover-large']['uri']
             
-            with urllib.request.urlopen(categoryurl) as categoryurl:
-               categoryinfo = json.loads(categoryurl.read().decode())
+            if levelurl != '':
+               levelid = list(record['run']['values'].keys())[0]
+               stageid = record['run']['values'][levelid]
+
+               with urllib.request.urlopen(levelurl) as leveljson:
+                  levelinfo = json.loads(leveljson.read().decode())
+
+               level = levelinfo['name']
+
+               with urllib.request.urlopen(levelurl + '/variables') as stagejson:
+                  stageinfo = json.loads(stagejson.read().decode())
+
+               stage = stageinfo['data'][0]['values']['choices'][stageid]
+
+               category = f'{level} ({stage})'
+            else:
+               with urllib.request.urlopen(categoryurl) as categoryjson:
+                  categoryinfo = json.loads(categoryjson.read().decode())
             
-            category = categoryinfo['name']
+               category = categoryinfo['name']
             
-            if category != "Individual Level":
-               embed=discord.Embed(title=f'New Personal Best at {time}!', url=link, description=f'Will has set a new PB for {game} - {category} and is now {place} on the leaderboard.', color=0x55c5c6)
-               embed.set_author(name='will-am-I', icon_url='https://www.speedrun.com/themes/user/will_am_I/image.png')
-               embed.set_thumbnail(url=cover)
-               embed.set_footer(text=f'Run verified {verified_date} UTC.')
-               await self.client.send(embed=embed)
-               print("src -> posted new pb")
+            embed=discord.Embed(title=f'New Personal Best at {time}!', url=link, description=f'Will has set a new PB for {game} - {category} and is now {place} on the leaderboard.', color=0x55c5c6)
+            embed.set_author(name='will-am-I', icon_url='https://www.speedrun.com/themes/user/will_am_I/image.png')
+            embed.set_thumbnail(url=cover)
+            embed.set_footer(text=f'Run verified {verified_date} UTC.')
+            await self.client.send(embed=embed)
+            print("src -> posted new pb")
             
 def setup (client):
    client.add_cog(SRC(client))
