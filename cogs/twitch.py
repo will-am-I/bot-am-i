@@ -13,7 +13,7 @@ class Twitch(commands.Cog):
       self.checkStream.start()
    
    def cog_unload (self):
-      self.checkStream.cancel()
+      self.checkStream.stop()
 
    #Twitch Live Check (Every 5 Minutes)
    @tasks.loop(minutes=5.0)

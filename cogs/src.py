@@ -10,7 +10,7 @@ class SRC(commands.Cog):
       self.checkPersonalBests.start()
 
    def cog_unload (self):
-      self.checkPersonalBests.cancel()
+      self.checkPersonalBests.stop()
    
    @tasks.loop(minutes=10.0)
    async def checkPersonalBests (self):
