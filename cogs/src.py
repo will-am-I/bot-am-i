@@ -112,7 +112,7 @@ class SRC(commands.Cog):
             embed.set_author(name='will-am-I', icon_url='https://www.speedrun.com/themes/user/will_am_I/image.png')
             embed.set_thumbnail(url=cover)
             embed.set_footer(text=f'Run verified {verified_date} UTC.')
-            await self.client.send(embed=embed)
+            self.client.get_channel(588934917551947787).send(embed=embed)
             print("src -> posted new pb")
             
 def setup (client):
