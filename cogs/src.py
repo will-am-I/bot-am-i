@@ -12,7 +12,7 @@ class SRC(commands.Cog):
    def cog_unload (self):
       self.checkPersonalBests.stop()
    
-   @tasks.loop(minutes=10.0)
+   @tasks.loop(minutes=15.0)
    async def checkPersonalBests (self):
       print("src -> loop")
       with urllib.request.urlopen('https://www.speedrun.com/api/v1/users/18q2o608/personal-bests') as pbjson:
@@ -34,8 +34,8 @@ class SRC(commands.Cog):
 
          verified_date = datetime.strptime(record['run']['status']['verify-date'][:10] + ' ' + record['run']['status']['verify-date'][11:-1], '%Y-%m-%d %H:%M:%S')
       
-         #If verified less than 10 minutes ago
-         if record['run']['status']['status'] == 'verified' and datetime.utcnow() - timedelta(minutes=10) <= verified_date <= datetime.utcnow():
+         #If verified less than 15 minutes ago
+         if record['run']['status']['status'] == 'verified' and datetime.utcnow() - timedelta(minutes=59) <= verified_date <= datetime.utcnow():
             print("src -> found new pb")
             link = record['run']['weblink']
             verified_date = verified_date.strftime('%b %#d, %Y at %H:%M')
@@ -49,7 +49,7 @@ class SRC(commands.Cog):
                place = place + 'rd'
             else:
                place = place + 'th'
-            
+
             sec, ms = divmod(record['run']['times']['primary_t'] * 100, 100)
             min, sec = divmod(sec, 60)
             hr, min = divmod(min, 60)
@@ -80,21 +80,22 @@ class SRC(commands.Cog):
                   categoryurl = weblink['uri']
                if weblink['rel'] == 'level':
                   levelurl = weblink['uri']
-                  
+
             with urllib.request.urlopen(gameurl) as gamejson:
                gameinfo = json.loads(gamejson.read().decode())
             
             game = gameinfo['data']['names']['twitch']
-            cover = gameinfo['data']['cover-large']['uri']
+            cover = gameinfo['data']['assets']['cover-large']['uri']
             
             if levelurl != '':
+               print("src -> level info")
                levelid = list(record['run']['values'].keys())[0]
                stageid = record['run']['values'][levelid]
 
                with urllib.request.urlopen(levelurl) as leveljson:
                   levelinfo = json.loads(leveljson.read().decode())
 
-               level = levelinfo['name']
+               level = levelinfo['data']['name']
 
                with urllib.request.urlopen(levelurl + '/variables') as stagejson:
                   stageinfo = json.loads(stagejson.read().decode())
@@ -103,6 +104,7 @@ class SRC(commands.Cog):
 
                category = f'{level} ({stage})'
             else:
+               print("src -> category info")
                with urllib.request.urlopen(categoryurl) as categoryjson:
                   categoryinfo = json.loads(categoryjson.read().decode())
             
@@ -112,7 +114,7 @@ class SRC(commands.Cog):
             embed.set_author(name='will-am-I', icon_url='https://www.speedrun.com/themes/user/will_am_I/image.png')
             embed.set_thumbnail(url=cover)
             embed.set_footer(text=f'Run verified {verified_date} UTC.')
-            self.client.get_channel(588934917551947787).send(embed=embed)
+            await self.client.get_channel(588934917551947787).send(embed=embed)
             print("src -> posted new pb")
             
 def setup (client):
