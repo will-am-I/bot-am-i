@@ -14,10 +14,12 @@ class Twitch(commands.Cog):
    #Twitch Live Check (Every 5 Minutes)
    @tasks.loop(minutes=5.0)
    async def checkPBs (self):
+      print("twitch -> loop")
       try:
          url = 'https://api.twitch.tv/helix/streams?user_login=will_am_I_'
          header = {'Client-ID': config['twitch_id'], 'Authorization': 'Bearer ' + config['twitch_token']}
          request = urllib.request.Request(url, headers=header)
+         print("twitch -> get data")
 
          with urllib.request.urlopen(request) as streamurl:
             streaminfo = json.loads(streamurl.read().decode())
@@ -27,10 +29,12 @@ class Twitch(commands.Cog):
             data = {'client_id': config['twitch_id'], 'client_secret': config['twitch_secret'], 'grant_type': 'client_credentials', 'scope': 'analytics:read:games user:read:broadcast'}
             request = requests.post(url=endpoint, data=data)
             token = request['access_token']
+            print("twitch -> new token " + token)
 
             url = 'https://api.twitch.tv/helix/streams?user_login=will_am_I_'
             header = {'Client-ID': config['twitch_id'], 'Authorization': 'Bearer ' + token}
             request = urllib.request.Request(url, headers=header)
+            print("twitch -> get data")
 
             with urllib.request.urlopen(request) as streamurl:
                streaminfo = json.loads(streamurl.read().decode())
@@ -40,8 +44,10 @@ class Twitch(commands.Cog):
       #print(json.dumps(streaminfo, indent=3))
       if streaminfo['data']:
          streaminfo = streaminfo['data'][0]
+         print("twitch -> stream live")
 
          if datetime.utcnow() - timedelta(minutes=5) <= datetime.strptime(streaminfo['started_at'][:10] + ' ' + streaminfo['started_at'][11:-1], '%Y-%m-%d %H:%M:%S') <= datetime.utcnow():
+            print("twitch -> stream live in past 5 minutes")
             gameid = streaminfo['game_id']
             title = streaminfo['title']
             thumbnail = streaminfo['thumbnail_url'].replace('{width}', '640').replace('{height}', '360')
@@ -68,6 +74,7 @@ class Twitch(commands.Cog):
             embed.set_image(url=thumbnail)
             embed.add_field(name='Game', value=game)
             self.client.get_channel(585925326144667655).send(embed=embed)
+            print("twitch -> made announcement")
 
 def setup (client):
    client.add_cog(Twitch(client))

@@ -10,28 +10,31 @@ class SRC(commands.Cog):
    
    @tasks.loop(minutes=10.0)
    async def checkPBs (self):
+      print("src -> loop")
       with urllib.request.urlopen('https://www.speedrun.com/api/v1/users/18q2o608/personal-bests') as url:
          data = json.loads(url.read().decode())
          
       data = data['data']
       
       for record in data:
+         print("src -> pb record")
          verified_date = datetime.strptime(record['run']['status']['verify-date'][:10] + ' ' + record['run']['status']['verify-date'][11:-1], '%Y-%m-%d %H:%M:%S')
       
          #If verified less than an hour ago
          if record['run']['status']['status'] == 'verified' and datetime.utcnow() - timedelta(minutes=10) <= verified_date <= datetime.utcnow():
+            print("src -> found new pb")
             link = record['run']['weblink']
             verified_date = verified_date.strftime('%b %#d, %Y at %H:%M')
-            
-            if record['place'] < 4:
-               if record['place'] == 1:
-                  place = str(record['place']) + 'st'
-               elif record['place'] == 2:
-                  place = str(record['place']) + 'nd'
-               elif record['place'] == 3:
-                  place = str(record['place']) + 'rd'
+            place = str(record['place'])
+
+            if place.endswith("1") and place != "11":
+               place = place + 'st'
+            elif place.endswith("2") and place != "12":
+               place = place + 'nd'
+            elif place.endswith("3") and place != "13":
+               place = place + 'rd'
             else:
-               place = str(record['place']) + 'th'
+               place = place + 'th'
             
             sec, ms = divmod(record['run']['times']['primary_t'] * 100, 100)
             min, sec = divmod(sec, 60)
@@ -78,6 +81,7 @@ class SRC(commands.Cog):
             embed.set_thumbnail(url=cover)
             embed.set_footer(text=f'Run verified {verified_date} UTC.')
             await self.client.send(embed=embed)
+            print("src -> posted new pb")
             
 def setup (client):
    client.add_cog(SRC(client))
