@@ -27,8 +27,10 @@ class Twitch(commands.Cog):
 
          with urllib.request.urlopen(request) as streamurl:
             streaminfo = json.loads(streamurl.read().decode())
+         print("twitch -> token success")
       except urllib.error.HTTPError as e:
          if e.code == 401:
+            print("twitch -> token fail")
             endpoint = 'https://id.twitch.tv/oauth2/token'
             data = {'client_id': config['twitch_id'], 'client_secret': config['twitch_secret'], 'grant_type': 'client_credentials', 'scope': 'analytics:read:games user:read:broadcast'}
             request = requests.post(url=endpoint, data=data)
@@ -45,7 +47,7 @@ class Twitch(commands.Cog):
          else:
             print(f'Error: {e.code}')
 
-      #print(json.dumps(streaminfo, indent=3))
+      print(json.dumps(streaminfo, indent=3))
       if streaminfo['data']:
          streaminfo = streaminfo['data'][0]
          print("twitch -> stream live")
@@ -64,7 +66,7 @@ class Twitch(commands.Cog):
             game = gameinfo['name']
             cover = gameinfo['box_art_url'].replace('{width}', '272')
 
-            request = urllib.request.Request('https://api.twitc.tv/helix/users?login=will_am_I_', headers=header)
+            request = urllib.request.Request('https://api.twitch.tv/helix/users?login=will_am_I_', headers=header)
             with urllib.request.urlopen(request) as userurl:
                userinfo = json.loads(userurl.read().decode())
             userinfo = userinfo['data'][0]
@@ -77,7 +79,7 @@ class Twitch(commands.Cog):
             embed.set_thumbnail(url=cover)
             embed.set_image(url=thumbnail)
             embed.add_field(name='Game', value=game)
-            self.client.get_channel(585925326144667655).send(embed=embed)
+            await self.client.get_channel(585925326144667655).send(embed=embed)
             print("twitch -> made announcement")
 
 def setup (client):
