@@ -41,7 +41,7 @@ class Twitch(commands.Cog):
             cover = gameinfo['box_art_url'].replace('{width}', '272').replace('{height}', '380') + f'?rand={randint(0, 999999)}'
 
             header = {'Client-ID': config['twitch_id'], 'Authorization': 'Bearer ' + config['twitch_token']}
-            request = urllib.request.Request('https://api.twitch.tv/helix/users?login=will_am_I_', headers=header)
+            request = urllib.request.Request('https://api.twitch.tv/helix/users?login=will_am_i_', headers=header)
             with urllib.request.urlopen(request) as userurl:
                userinfo = json.loads(userurl.read().decode())
             userinfo = userinfo['data'][0]

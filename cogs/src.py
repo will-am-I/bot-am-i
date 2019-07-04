@@ -1,7 +1,7 @@
-import discord
+import discord, urllib.request, json
 from discord.ext import commands, tasks
-import urllib.request, json
 from datetime import datetime, timedelta
+from random import randint
 
 class SRC(commands.Cog):
 
@@ -21,17 +21,7 @@ class SRC(commands.Cog):
          
       for record in data:
          print("src -> pb record")
-         link = ''
-         place = ''
-         time = ''
-         gameurl = ''
-         categoryurl = ''
          levelurl = ''
-         category = ''
-         level = ''
-         levelid = ''
-         stage = ''
-         stageid = ''
 
          verified_date = datetime.strptime(record['run']['status']['verify-date'][:10] + ' ' + record['run']['status']['verify-date'][11:-1], '%Y-%m-%d %H:%M:%S')
       
@@ -86,7 +76,7 @@ class SRC(commands.Cog):
                gameinfo = json.loads(gamejson.read().decode())
             
             game = gameinfo['data']['names']['twitch']
-            cover = gameinfo['data']['assets']['cover-large']['uri']
+            cover = gameinfo['data']['assets']['cover-large']['uri'] + f'?rand={randint(0, 999999)}'
             
             if levelurl != '':
                print("src -> level info")
