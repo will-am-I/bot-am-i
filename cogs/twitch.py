@@ -1,8 +1,8 @@
-import discord
+import discord, urllib.request, json, requests
 from discord.ext import commands, tasks
-import urllib.request, json, requests, random
 from datetime import datetime, timedelta
 from twitch import TwitchHelix
+from random import randint
 
 with open('./cogs/config.json') as data:
    config = json.load(data)
