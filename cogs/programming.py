@@ -1,7 +1,13 @@
-import discord
+import discord, json
 from discord.ext import commands
+from twitch import TwitchHelix
+from random import randint
+
+with open('./cogs/config.json') as data:
+   config = json.load(data)
 
 WILL_ID = 320246151196704768
+twitch_client = TwitchHelix(client_id=config['twitch_id'], oauth_token=config['twitch_token'])
 
 class Programming(commands.Cog):
 
@@ -12,7 +18,22 @@ class Programming(commands.Cog):
    @commands.command()
    async def test(self, ctx):
       if ctx.message.author.id == WILL_ID:
-         await ctx.send(ctx.author.avatar_url)
+         stream = twitch_client.get_streams(user_logins='bobross')
+         stream = stream[0]
+         gameid = stream['game_id']
+         title = stream['title']
+         thumbnail = stream['thumbnail_url'].replace('{width}', '640').replace('{height}', '360') + f'?rand={randint(0, 999999)}'
+
+         gameinfo = twitch_client.get_games(game_ids=gameid)
+         gameinfo = gameinfo[0]
+         game = gameinfo['name']
+         cover = gameinfo['box_art_url'].replace('{width}', '272').replace('{height}', '380') + f'?rand={randint(0, 999999)}'
+
+         embed = discord.Embed(title=title, url='https://www.twitch.tv/bobross')
+         embed.set_thumbnail(url=cover)
+         embed.set_image(url=thumbnail)
+         embed.add_field(name='Game', value=game)
+         await ctx.send(embed=embed)
    
    #Get Text Channel ID
    @commands.command(aliases=['textid'])
