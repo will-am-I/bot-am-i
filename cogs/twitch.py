@@ -1,13 +1,7 @@
 import discord, urllib.request, json, requests
 from discord.ext import commands, tasks
-<<<<<<< HEAD
 from datetime import datetime, timedelta
-from twitch import TwitchHelix
 from random import randint
-=======
-import urllib.request, json, requests
-from datetime import datetime, timedelta
->>>>>>> parent of b0fe209... fixed twitch announements
 
 with open('./cogs/config.json') as data:
    config = json.load(data)
@@ -62,26 +56,19 @@ class Twitch(commands.Cog):
             print("twitch -> stream live in past 5 minutes")
             gameid = streaminfo['game_id']
             title = streaminfo['title']
-            thumbnail = streaminfo['thumbnail_url'].replace('{width}', '640').replace('{height}', '360')
+            thumbnail = streaminfo['thumbnail_url'].replace('{width}', '640').replace('{height}', '360') + f'?rand={randint(0, 999999)}'
 
             request = urllib.request.Request('https://api.twitch.tv/helix/games?id=' + gameid, headers=header)
             with urllib.request.urlopen(request) as gameurl:
                gameinfo = json.loads(gameurl.read().decode())
             gameinfo = gameinfo['data'][0]
-
             game = gameinfo['name']
-            cover = gameinfo['box_art_url'].replace('{width}', '272')
+            cover = gameinfo['box_art_url'].replace('{width}', '272').replace('{height}', '380').replace('/./', '/') + f'?rand={randint(0, 999999)}'
 
-<<<<<<< HEAD
-            header = {'Client-ID': config['twitch_id'], 'Authorization': 'Bearer ' + config['twitch_token']}
             request = urllib.request.Request('https://api.twitch.tv/helix/users?login=will_am_i_', headers=header)
-=======
-            request = urllib.request.Request('https://api.twitch.tv/helix/users?login=will_am_I_', headers=header)
->>>>>>> parent of b0fe209... fixed twitch announements
             with urllib.request.urlopen(request) as userurl:
                userinfo = json.loads(userurl.read().decode())
             userinfo = userinfo['data'][0]
-
             description = userinfo['description']
             icon = userinfo['profile_image_url']
 
@@ -90,7 +77,7 @@ class Twitch(commands.Cog):
             embed.set_thumbnail(url=cover)
             embed.set_image(url=thumbnail)
             embed.add_field(name='Game', value=game)
-            await self.client.get_channel(585925326144667655).send(embed=embed)
+            await self.client.get_channel(585925326144667655).send(content='<@&583864250410336266>, your favorite speedrunner is now live! Come hang out!', embed=embed)
             print("twitch -> made announcement")
 
 def setup (client):
