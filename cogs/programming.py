@@ -18,6 +18,7 @@ class Programming(commands.Cog):
    @commands.command()
    async def test(self, ctx):
       if ctx.message.author.id == WILL_ID:
+<<<<<<< HEAD
          stream = twitch_client.get_streams(user_logins='bobross')
          stream = stream[0]
          gameid = stream['game_id']
@@ -34,6 +35,9 @@ class Programming(commands.Cog):
          embed.set_image(url=thumbnail)
          embed.add_field(name='Game', value=game)
          await ctx.send(embed=embed)
+=======
+         await ctx.send("***Test***")
+>>>>>>> parent of 82eca33... added welcome embed
    
    #Get Text Channel ID
    @commands.command(aliases=['textid'])
