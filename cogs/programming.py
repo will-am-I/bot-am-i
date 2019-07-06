@@ -1,13 +1,7 @@
-import discord, json
+import discord
 from discord.ext import commands
-from twitch import TwitchHelix
-from random import randint
-
-with open('./cogs/config.json') as data:
-   config = json.load(data)
 
 WILL_ID = 320246151196704768
-twitch_client = TwitchHelix(client_id=config['twitch_id'], oauth_token=config['twitch_token'])
 
 class Programming(commands.Cog):
 
@@ -18,6 +12,7 @@ class Programming(commands.Cog):
    @commands.command()
    async def test(self, ctx):
       if ctx.message.author.id == WILL_ID:
+<<<<<<< HEAD
 <<<<<<< HEAD
          stream = twitch_client.get_streams(user_logins='bobross')
          stream = stream[0]
@@ -38,6 +33,9 @@ class Programming(commands.Cog):
 =======
          await ctx.send("***Test***")
 >>>>>>> parent of 82eca33... added welcome embed
+=======
+         await ctx.send(ctx.author.avatar_url)
+>>>>>>> parent of b0fe209... fixed twitch announements
    
    #Get Text Channel ID
    @commands.command(aliases=['textid'])
