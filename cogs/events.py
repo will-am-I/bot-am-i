@@ -15,7 +15,6 @@ class Events(commands.Cog):
    #Member join
    @commands.Cog.listener()
    async def on_member_join(self, member):
-      await self.client.get_channel(585867244056346646).send('Hello')
       embed=discord.Embed(title="Welcome to the ThumbWars!", description=f"Everyone say hello to **{member.name}**", color=0x55c5c6)
       embed.set_thumbnail(url=member.avatar_url)
       await self.client.get_channel(585867244056346646).send(embed=embed)
