@@ -14,6 +14,7 @@ class SRC(commands.Cog):
    
    @tasks.loop(minutes=15.0)
    async def checkPersonalBests (self):
+      print(datetime.now().strftime("%m/%d/%Y, %H:%M:%S"))
       print("src -> loop")
       with urllib.request.urlopen('https://www.speedrun.com/api/v1/users/18q2o608/personal-bests') as pbjson:
          data = json.loads(pbjson.read().decode())['data']

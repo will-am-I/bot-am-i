@@ -18,6 +18,7 @@ class Twitch(commands.Cog):
    #Twitch Live Check (Every 5 Minutes)
    @tasks.loop(minutes=5.0)
    async def checkStream (self):
+      print(datetime.now().strftime("%m/%d/%Y, %H:%M:%S"))
       print("twitch -> loop")
       try:
          url = 'https://api.twitch.tv/helix/streams?user_login=will_am_I_'
