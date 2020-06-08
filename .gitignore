@@ -114,3 +114,4 @@ dmypy.json
 .pyre/
 cogs/config.json
 start.bat
+.vscode/settings.json
