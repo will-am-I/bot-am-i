@@ -53,7 +53,7 @@ class Twitch(commands.Cog):
          streaminfo = streaminfo['data'][0]
          print("twitch -> stream live")
 
-         if datetime.utcnow() - timedelta(minutes=5) <= datetime.strptime(streaminfo['started_at'][:10] + ' ' + streaminfo['started_at'][11:-1], '%Y-%m-%d %H:%M:%S') <= datetime.utcnow():
+         if datetime.utcnow() - timedelta(seconds=330) <= datetime.strptime(streaminfo['started_at'][:10] + ' ' + streaminfo['started_at'][11:-1], '%Y-%m-%d %H:%M:%S') <= datetime.utcnow():
             print("twitch -> stream live in past 5 minutes")
             gameid = streaminfo['game_id']
             title = streaminfo['title']
