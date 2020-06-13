@@ -33,13 +33,16 @@ class Twitch(commands.Cog):
          if e.code == 401:
             print("twitch -> token fail")
             endpoint = 'https://id.twitch.tv/oauth2/token'
-            data = {'client_id': config['twitch_id'], 'client_secret': config['twitch_secret'], 'grant_type': 'client_credentials', 'scope': 'analytics:read:games user:read:broadcast'}
+            data = {'client_id': config['twitch_id'], 'client_secret': config['twitch_secret'], 'grant_type': 'client_credentials', 'scope': 'analytics:read:games channel:read:subscriptions user:read:broadcast'}
             request = requests.post(url=endpoint, data=data)
-            token = request['access_token']
-            print("twitch -> new token " + token)
+            print("twitch -> new token " + request['access_token'])
+
+            config['twitch_token'] = request['access_token']
+            with open('./cogs/config.json', 'w') as newdata:
+               json.dump(config, newdata, indent=3)
 
             url = 'https://api.twitch.tv/helix/streams?user_login=will_am_I_'
-            header = {'Client-ID': config['twitch_id'], 'Authorization': 'Bearer ' + token}
+            header = {'Client-ID': config['twitch_id'], 'Authorization': 'Bearer ' + config['twitch_token']}
             request = urllib.request.Request(url, headers=header)
             print("twitch -> get data")
 
