@@ -3,6 +3,8 @@ from discord.ext import commands, tasks
 from datetime import datetime, timedelta
 from random import randint
 
+WILL_ID = 320246151196704768
+
 with open('./cogs/config.json') as data:
    config = json.load(data)
 
@@ -30,24 +32,11 @@ class Twitch(commands.Cog):
             streaminfo = json.loads(streamurl.read().decode())
          print("twitch -> token success")
       except urllib.error.HTTPError as e:
+         self.client.unload_extension('cogs.twitch')
          if e.code == 401:
             print("twitch -> token fail")
-            endpoint = 'https://id.twitch.tv/oauth2/token'
-            data = {'client_id': config['twitch_id'], 'client_secret': config['twitch_secret'], 'grant_type': 'client_credentials', 'scope': 'analytics:read:games channel:read:subscriptions user:read:broadcast'}
-            request = requests.post(url=endpoint, data=data)
-            print("twitch -> new token " + request['access_token'])
-
-            config['twitch_token'] = request['access_token']
-            with open('./cogs/config.json', 'w') as newdata:
-               json.dump(config, newdata, indent=3)
-
-            url = 'https://api.twitch.tv/helix/streams?user_login=will_am_I_'
-            header = {'Client-ID': config['twitch_id'], 'Authorization': 'Bearer ' + config['twitch_token']}
-            request = urllib.request.Request(url, headers=header)
-            print("twitch -> get data")
-
-            with urllib.request.urlopen(request) as streamurl:
-               streaminfo = json.loads(streamurl.read().decode())
+            user = self.client.get_user(WILL_ID)
+            await user.send('Twitch API token has expired. Please visit https://reqbin.com/ to request a new one.\nHeader is: {"client_id": twitch_id, "client_secret": twitch_secret, "grant_type": "client_credentials", "scope": "analytics:read:games channel:read:subscriptions user:read:broadcast"}\nWhen this is done, remember to load the cog.')
          else:
             print(f'Error: {e.code}')
 
