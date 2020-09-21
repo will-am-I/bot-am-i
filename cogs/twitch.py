@@ -36,7 +36,7 @@ class Twitch(commands.Cog):
          if e.code == 401:
             print("twitch -> token fail")
             user = self.client.get_user(WILL_ID)
-            await user.send('Twitch API token has expired. Please visit https://reqbin.com/ to request a new one.\nHeader is: {"client_id": twitch_id, "client_secret": twitch_secret, "grant_type": "client_credentials", "scope": "analytics:read:games channel:read:subscriptions user:read:broadcast"}\nWhen this is done, remember to load the cog.')
+            await user.send('Twitch API token has expired. Please visit https://reqbin.com/ to request a new one.\n\nURL is : https://id.twitch.tv/oauth2/token \n\nHeader is: {"client_id": twitch_id, "client_secret": twitch_secret, "grant_type": "client_credentials", "scope": "analytics:read:games channel:read:subscriptions user:read:broadcast"}\n\nWhen this is done, remember to load the cog.')
          else:
             print(f'Error: {e.code}')
 
