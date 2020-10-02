@@ -20,13 +20,14 @@ class SRC(commands.Cog):
          data = json.loads(pbjson.read().decode())['data']
          
       for record in data:
-         print("src -> pb record")
+         print("src -> pb record: " + record['run']['game'])
          levelurl = ''
+         subcategories = ''
 
          verified_date = datetime.strptime(record['run']['status']['verify-date'][:10] + ' ' + record['run']['status']['verify-date'][11:-1], '%Y-%m-%d %H:%M:%S')
       
          #If verified less than 15 minutes ago
-         if record['run']['status']['status'] == 'verified' and datetime.utcnow() - timedelta(minutes=15) <= verified_date <= datetime.utcnow():
+         if record['run']['status']['status'] == 'verified' and datetime.utcnow() - timedelta(minutes=17) <= verified_date <= datetime.utcnow():
             print("src -> found new pb")
             link = record['run']['weblink']
             verified_date = verified_date.strftime('%b %#d, %Y at %H:%M')
@@ -98,8 +99,18 @@ class SRC(commands.Cog):
                print("src -> category info")
                with urllib.request.urlopen(categoryurl) as categoryjson:
                   categoryinfo = json.loads(categoryjson.read().decode())
-            
-               category = categoryinfo['data']['name']
+               
+               if len(record['run']['values']) > 0:
+                  with urllib.request.urlopen(categoryurl + '/variables') as subcategoryjson:
+                     subcategoryinfo = json.loads(subcategoryjson.read().decode())
+                  
+                  for subcategory in subcategoryinfo['data']:
+                     if subcategory['is-subcategory'] == True:
+                        subcategories += subcategory['values']['values'][record['run']['values'][subcategory['id']]]['label'] + ", "
+
+                  category = categoryinfo['data']['name'] + " (" + subcategories[:-2] + ")"
+               else:
+                  category = categoryinfo['data']['name']
             
             embed=discord.Embed(title=f'New Personal Best at {time}!', url=link, description=f'Will has set a new PB for\n**{game}** - ***{category}***\nand is now {place} on the leaderboard.', color=0x55c5c6)
             embed.set_author(name='will-am-I', icon_url='https://www.speedrun.com/themes/user/will_am_I/image.png')
