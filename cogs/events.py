@@ -1,5 +1,8 @@
-import discord
+import discord, json, MySQLdb
 from discord.ext import commands
+
+with open('./cogs/config.json') as data:
+   config = json.load(data)
 
 class Events(commands.Cog):
 
@@ -16,7 +19,7 @@ class Events(commands.Cog):
    @commands.Cog.listener()
    async def on_member_join(self, member):
       embed=discord.Embed(title="Welcome to the ThumbWars!", description=f"Everyone say hello to **{member.name}**", color=0x55c5c6)
-      embed.set_thumbnail(url=member.avatar_url)
+      embed.set_thumbnail(url=member.default_avatar_url)
       await self.client.get_channel(585867244056346646).send(embed=embed)
       print(f'{member} has joined the server.')
       

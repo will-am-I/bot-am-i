@@ -2,6 +2,10 @@ import discord, urllib.request, json
 from discord.ext import commands, tasks
 from datetime import datetime, timedelta
 from random import randint
+import MySQLdb
+
+with open('./cogs/config.json') as data:
+   config = json.load(data)
 
 class SRC(commands.Cog):
 
@@ -18,17 +22,17 @@ class SRC(commands.Cog):
       print("src -> loop")
       with urllib.request.urlopen('https://www.speedrun.com/api/v1/users/18q2o608/personal-bests') as pbjson:
          data = json.loads(pbjson.read().decode())['data']
-         
+
       for record in data:
-         print("src -> pb record: " + record['run']['game'])
+         print(f"src -> pb record: {record['run']['id']} {record['run']['game']}")
+         verified_date = datetime.strptime(record['run']['status']['verify-date'][:10] + ' ' + record['run']['status']['verify-date'][11:-1], '%Y-%m-%d %H:%M:%S')
          levelurl = ''
          subcategories = ''
 
-         verified_date = datetime.strptime(record['run']['status']['verify-date'][:10] + ' ' + record['run']['status']['verify-date'][11:-1], '%Y-%m-%d %H:%M:%S')
-      
          #If verified less than 15 minutes ago
-         if record['run']['status']['status'] == 'verified' and datetime.utcnow() - timedelta(minutes=17) <= verified_date <= datetime.utcnow():
+         if record['run']['status']['status'] == 'verified' and datetime.utcnow() - timedelta(minutes=20) <= verified_date <= datetime.utcnow():
             print("src -> found new pb")
+
             link = record['run']['weblink']
             verified_date = verified_date.strftime('%b %#d, %Y at %H:%M')
             place = str(record['place'])
