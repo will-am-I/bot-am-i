@@ -1,5 +1,6 @@
-import discord
+import discord, urllib.request, requests, json, MySQLdb
 from discord.ext import commands
+from datetime import datetime
 
 WILL_ID = 320246151196704768
 
@@ -13,7 +14,7 @@ class Programming(commands.Cog):
    async def test(self, ctx):
       if ctx.message.author.id == WILL_ID:
          await ctx.message.author.send('Test')
-   
+
    #Get Text Channel ID
    @commands.command(aliases=['textid'])
    async def textchannelid(self, ctx, channel : discord.TextChannel):
