@@ -1,4 +1,4 @@
-import discord, urllib.request, json, requests
+import discord, urllib.request, json, MySQLdb
 from discord.ext import commands, tasks
 from datetime import datetime, timedelta
 from random import randint
@@ -17,7 +17,6 @@ class Twitch(commands.Cog):
    def cog_unload (self):
       self.checkStream.stop()
 
-   #Twitch Live Check (Every 5 Minutes)
    @tasks.loop(minutes=5.0)
    async def checkStream (self):
       print(datetime.now().strftime("%m/%d/%Y, %H:%M:%S"))
@@ -25,7 +24,7 @@ class Twitch(commands.Cog):
       try:
          url = 'https://api.twitch.tv/helix/streams?user_login=will_am_I_'
          header = {'Client-ID': config['twitch_id'], 'Authorization': 'Bearer ' + config['twitch_token']}
-         request = urllib.request.Request(url, headers=header)
+         request = urllib.request.Request(url, headers=header, method="GET")
          print("twitch -> get data")
 
          with urllib.request.urlopen(request) as streamurl:
@@ -35,7 +34,6 @@ class Twitch(commands.Cog):
 
       except urllib.error.HTTPError as e:
          self.client.unload_extension('cogs.twitch')
-         #self.client.unload_extension('cogs.roles')
          if e.code == 401:
             print("twitch -> token fail")
             user = self.client.get_user(WILL_ID)
@@ -53,14 +51,14 @@ class Twitch(commands.Cog):
                title = streaminfo['title']
                thumbnail = streaminfo['thumbnail_url'].replace('{width}', '640').replace('{height}', '360') + f'?rand={randint(0, 999999)}'
 
-               request = urllib.request.Request('https://api.twitch.tv/helix/games?id=' + gameid, headers=header)
+               request = urllib.request.Request('https://api.twitch.tv/helix/games?id=' + gameid, headers=header, method="GET")
                with urllib.request.urlopen(request) as gameurl:
                   gameinfo = json.loads(gameurl.read().decode())
                gameinfo = gameinfo['data'][0]
                game = gameinfo['name']
                cover = gameinfo['box_art_url'].replace('{width}', '272').replace('{height}', '380').replace('/./', '/') + f'?rand={randint(0, 999999)}'
 
-               request = urllib.request.Request('https://api.twitch.tv/helix/users?login=will_am_i_', headers=header)
+               request = urllib.request.Request('https://api.twitch.tv/helix/users?login=will_am_i_', headers=header, method="GET")
                with urllib.request.urlopen(request) as userurl:
                   userinfo = json.loads(userurl.read().decode())
                userinfo = userinfo['data'][0]
@@ -74,6 +72,35 @@ class Twitch(commands.Cog):
                embed.add_field(name='Game', value=game)
                await self.client.get_channel(585925326144667655).send(content='<@&583864250410336266>, your favorite speedrunner is now live! Come hang out!', embed=embed)
                print("twitch -> made announcement")
+
+   @tasks.loop(minutes=2)
+   async def CheckClips (self):
+      db = MySQLdb.connect("localhost", "root", config['database_pass'], config['database_schema'])
+      cursor = db.cursor()
+
+      try:
+         cursor.execute("SELECT clipid FROM twitch_clips")
+         
+         if cursor.rowcount > 0:
+            clips = cursor.fetchall()
+
+            for clip in clips:
+               url = f"https://api.twitch.tv/helix/clips?id={clip[0]}"
+               header = {'Client-ID': config['twitch_id'], 'Authorization': 'Bearer ' + config['twitch_token']}
+               request = urllib.request.Request(url, headers=header, method="GET")
+               with urllib.request.urlopen(request) as clipurl:
+                  clipinfo = json.loads(clipurl.read().decode())
+
+               await self.client.get_channel(587750670459994112).send(clipinfo['data'][0]['url'])
+
+               db.execute(f"DELETE FROM twitch_clips WHERE clipid = '{clip[0]}'")
+         
+         db.commit()
+      except Exception as e:
+         db.rollback()
+         print(str(e))
+
+      db.close()
 
 def setup (client):
    client.add_cog(Twitch(client))

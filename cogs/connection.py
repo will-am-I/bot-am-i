@@ -20,7 +20,7 @@ class Connection(commands.Cog):
          try:
             url = 'https://api.twitch.tv/helix/users?login=' + username
             header = {'Client-ID': config['twitch_id'], 'Authorization': 'Bearer ' + config['twitch_token']}
-            request = urllib.request.Request(url, headers=header)
+            request = urllib.request.Request(url, headers=header, method="GET")
 
             with urllib.request.urlopen(request) as userjson:
                userinfo = json.loads(userjson.read().decode())
