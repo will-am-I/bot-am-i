@@ -20,6 +20,7 @@ class Twitch(commands.Cog):
 
    @tasks.loop(minutes=5.0)
    async def checkStream (self):
+      print("\n")
       print(datetime.now().strftime("%m/%d/%Y, %H:%M:%S"))
       print("twitch -> loop")
       try:

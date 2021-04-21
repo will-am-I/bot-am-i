@@ -1,5 +1,6 @@
 import discord, urllib.request, json, MySQLdb
 from discord.ext import commands, tasks
+from discord.utils import get
 from datetime import datetime, timedelta
 from random import randint
 
@@ -27,6 +28,7 @@ class Streams(commands.Cog):
 
       try:
          for member in self.client.get_all_members():
+            liverole = get(member.guild.roles, id=834268646603620403)
             twitchid = 0
             roles = [role.id for role in member.roles]
 
@@ -82,6 +84,11 @@ class Streams(commands.Cog):
                            embed.add_field(name='Game', value=game)
                            await self.client.get_channel(834277711819440148).send(content=f"{member.mention} is live now! Come show your support for our community.", embed=embed)
                            print("streams -> made announcement")
+
+                           await member.add_roles(liverole)
+                     else:
+                        if 834268646603620403 in roles:
+                           await member.remove_roles(liverole)
                else:
                   #await member.send("Please connect your twitch account in the discord so that a live announcement can be made.")
                   pass

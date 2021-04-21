@@ -15,7 +15,8 @@ class Connection(commands.Cog):
       if message.channel.id == 829917630579867759 and message.author.id != config['bot_id']:
          unclaimed = True
          username = message.content.replace(" ", "")
-         print(username, message.author.id, message.author.name)
+         print("\n")
+         print("connection -> " + message.author.name + " to " + message.content)
 
          try:
             url = 'https://api.twitch.tv/helix/users?login=' + username
@@ -28,7 +29,7 @@ class Connection(commands.Cog):
 
          except urllib.error.HTTPError as e:
             if e.code == 401:
-               print("twitch -> token fail")
+               print("connection -> token fail")
                user = self.client.get_user(320246151196704768)
                await user.send('Twitch API token has expired. Please visit https://reqbin.com/ to request a new one.\n\nURL is : https://id.twitch.tv/oauth2/token \n\nHeader is: {"client_id": twitch_id, "client_secret": twitch_secret, "grant_type": "client_credentials", "scope": "analytics:read:games channel:read:subscriptions user:read:broadcast"}\n\nWhen this is done, remember to load the cog.')
             else:
@@ -38,25 +39,58 @@ class Connection(commands.Cog):
             if userinfo['data']:
                db = MySQLdb.connect("localhost", "root", config['database_pass'], config['database_schema'])
                cursor = db.cursor()
-               print(userinfo['data'][0]['id'])
+               userinfo = userinfo['data'][0]
 
                try:
-                  cursor.execute(f"SELECT twitchid, discordid FROM member_rank WHERE twitchid = {userinfo['data'][0]['id']} OR discordid = {message.author.id}")
+                  cursor.execute(f"SELECT twitchid FROM member_rank WHERE discordid = {message.author.id}")
 
-                  if cursor.rowcount == 0:
-                     cursor.execute(f"INSERT INTO member_rank (twitchid, discordid) VALUES ({userinfo['data'][0]['id']}, {message.author.id})")
-                  else:
-                     memberinfo = cursor.fetchone()
-                     if memberinfo[1] is None:
-                        cursor.execute(f"UPDATE member_rank SET discordid = {message.author.id} WHERE twitchid = {userinfo['data'][0]['id']}")
-                     else:
-                        cursor.execute(f"SELECT twitchid FROM member_rank")
-                        twitchids = cursor.fetchall()
-                        if memberinfo[0] in twitchids:
-                           await message.channel.send(f"{userinfo['data'][0]['display_name']} has already been claimed by another user.")
-                           unclaimed = False
+                  if cursor.rowcount > 0:
+                     print("connection -> found discord row")
+                     twitchid = cursor.fetchone()[0]
+
+                     if twitchid == 0:
+                        print("connection -> discord no twitch")
+                        cursor.execute(f"SELECT discordname, discordid, points, coins FROM member_rank WHERE twitchid = {userinfo['id']}")
+
+                        if cursor.rowcount > 0:
+                           print("connection -> found twitch row")
+                           member = cursor.fetchone()
+                           discordname = member[0]
+                           discordid = member[1]
+                           points = member[2]
+                           coins = member[3]
+                           
+                           if discordid == 0:
+                              print("connection -> twitch no discord")
+                              cursor.execute(f"DELETE FROM member_rank WHERE twitchid = {userinfo['id']}")
+                              cursor.execute(f"UPDATE member_rank SET twitchname = '{userinfo['display_name']}', twitchid = {userinfo['id']}, points = points + {points}, coins = coins + {coins} WHERE discordid = {message.author.id}")
+                           else:
+                              print("connection -> twitch claimed by " + discordname)
+                              await message.channel.send(f"This account has already been claimed by {discordname}. If you feel this is a mistake please bring it up to Will.")
+                              unclaimed = False
                         else:
-                           cursor.execute(f"UPDATE member_rank SET twitchid = {userinfo['data'][0]['id']} WHERE discordid = {message.author.id}")
+                           print("connection -> no twitch row")
+                           cursor.execute(f"UPDATE member_rank SET twitchname = '{userinfo['display_name']}', twitchid = {userinfo['id']} WHERE discordid = {message.author.id}")
+                  else:
+                     print("connection -> no discord row")
+                     cursor.execute(f"SELECT twitchid, discordid, discordname FROM member_rank WHERE twitchid = {userinfo['id']}")
+
+                     if cursor.rowcount > 0:
+                        print("connection -> found twitch row")
+                        member = cursor.fetchone()
+                        discordid = member[1]
+                        discordname = member[2]
+
+                        if discordid == 0:
+                           print("connection -> twitch no discord")
+                           cursor.execute(f"UPDATE member_rank SET discordname = '{message.author.name}', discordid = {message.author.id} WHERE twitchid = {userinfo['id']}")
+                        else:
+                           print("connection -> twitch claimed by " + discordname)
+                           await message.channel.send(f"This account has already been claimed by {discordname}. If you feel this is a mistake please bring it up to Will.")
+                           unclaimed = False
+                     else:
+                        print("connection -> no rows at all")
+                        cursor.execute(f"INSERT INTO member_rank (discordname, discordid, twitchname, twitchid) VALUES ('{message.author.name}', {message.author.id}, '{userinfo['display_name']}', {userinfo['id']}")
 
                   db.commit()
 
@@ -69,7 +103,7 @@ class Connection(commands.Cog):
                else:
                   if unclaimed:
                      try:
-                        url = f"https://api.twitch.tv/helix/users/follows?from_id={userinfo['data'][0]['id']}&to_id=158745134"
+                        url = f"https://api.twitch.tv/helix/users/follows?from_id={userinfo['id']}&to_id=158745134"
                         header = {'Client-ID': config['twitch_id'], 'Authorization': 'Bearer ' + config['twitch_token']}
                         request = urllib.request.Request(url, headers=header)
 
@@ -79,7 +113,7 @@ class Connection(commands.Cog):
                      
                      except urllib.error.HTTPError as e:
                         if e.code == 401:
-                           print("twitch -> token fail")
+                           print("connection -> token fail")
                            user = self.client.get_user(320246151196704768)
                            await user.send('Twitch API token has expired. Please visit https://reqbin.com/ to request a new one.\n\nURL is : https://id.twitch.tv/oauth2/token \n\nHeader is: {"client_id": twitch_id, "client_secret": twitch_secret, "grant_type": "client_credentials", "scope": "analytics:read:games channel:read:subscriptions user:read:broadcast"}\n\nWhen this is done, remember to load the cog.')
                         else:
@@ -91,10 +125,12 @@ class Connection(commands.Cog):
                         else:
                            role = get(message.guild.roles, id=829920585642803250)
                         await message.author.add_roles(role)
-                        await message.channel.send(f"{message.author.mention} as been connected to {userinfo['data'][0]['display_name']}")
+                        await message.channel.send(f"{message.author.mention} as been connected to {userinfo['display_name']}")
+                        print("connection -> " + message.author.name + " connected to " + userinfo['display_name'])
                
                db.close()
             else:
+               print("connection -> invalid username " + message.content)
                await message.channel.send(message.content + " is not a valid Twitch username")
 
 def setup (client):

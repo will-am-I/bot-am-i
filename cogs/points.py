@@ -6,7 +6,7 @@ from discord.ext import commands
 with open('./cogs/config.json') as data:
    config = json.load(data)
 
-invalid_channels = [585867988016562186, 585925326144667655, 585925326144667655, 653964283104722955, 829939450132955137, 585867244056346646, 829917630579867759]
+invalid_channels = [585867988016562186, 585925326144667655, 585925326144667655, 653964283104722955, 829939450132955137, 585867244056346646, 829917630579867759, 834261336971673611, 834277711819440148]
 
 class Points(commands.Cog):
 
@@ -20,8 +20,12 @@ class Points(commands.Cog):
          cursor = db.cursor()
 
          try:
-            cursor.execute(f"INSERT IGNORE INTO member_rank (discordid) VALUES ({message.author.id})")
-            cursor.execute(f"UPDATE member_rank SET points = points + 1 WHERE discordid = {message.author.id}")
+            cursor.execute(f"SELECT * FROM member_rank WHERE discordid = {message.author.id}")
+
+            if cursor.rowcount > 0:
+               cursor.execute(f"UPDATE member_rank SET points = points + 1 WHERE discordid = {message.author.id}")
+            else:
+               cursor.execute(f"INSERT INTO member_rank (discordname, discordid, points) VALUES ('{message.author.name}', {message.author.id}, 1)")
 
             cursor.execute(f"SELECT DATE_FORMAT(coinlock, '%Y-%m-%d %T') FROM member_rank WHERE discordid = {message.author.id}")
             stamp = cursor.fetchone()[0]
