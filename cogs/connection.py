@@ -38,6 +38,7 @@ class Connection(commands.Cog):
             if userinfo['data']:
                db = MySQLdb.connect("localhost", "root", config['database_pass'], config['database_schema'])
                cursor = db.cursor()
+               print(userinfo['data'][0]['id'])
 
                try:
                   cursor.execute(f"SELECT twitchid, discordid FROM member_rank WHERE twitchid = {userinfo['data'][0]['id']} OR discordid = {message.author.id}")

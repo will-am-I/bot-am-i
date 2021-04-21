@@ -17,6 +17,7 @@ class SRC(commands.Cog):
    
    @tasks.loop(minutes=10)
    async def checkPersonalBests (self):
+      print("\n")
       print(datetime.now().strftime("%m/%d/%Y, %H:%M:%S"))
       print("src -> loop")
       db = MySQLdb.connect("localhost", "root", config['database_pass'], config['database_schema'])
@@ -54,27 +55,27 @@ class SRC(commands.Cog):
                else:
                   place = place + 'th'
 
-               sec, ms = divmod(record['run']['times']['primary_t'] * 100, 100)
-               min, sec = divmod(sec, 60)
-               hr, min = divmod(min, 60)
+               se, ms = divmod(record['run']['times']['primary_t'] * 100, 100)
+               mi, se = divmod(se, 60)
+               hr, mi = divmod(mi, 60)
                
-               ms = '{:<02d}'.format(int(ms))
-               sec = str(int(sec)).zfill(2)
-               min = str(int(min)).zfill(2)
+               ms = str(int(ms)).ljust(2, '0')
+               se = str(int(se)).zfill(2)
+               mi = str(int(mi)).zfill(2)
                hr = str(int(hr))
                
-               if hr == 0:
-                  if min == 0:
-                     time = f'{sec}.{ms}'
+               if int(hr) == 0:
+                  if int(mi) == 0:
+                     time = f'{se}.{ms}'
                   else:
-                     time = f'{min}:{sec}'
+                     time = f'{mi}:{se}'
                      
-                     if ms > 0:
+                     if int(ms) > 0:
                         time = time + f'.{ms}'
                else:
-                  time = f'{hr}:{min}:{sec}'
+                  time = f'{hr}:{mi}:{se}'
                   
-                  if ms > 0:
+                  if int(ms) > 0:
                      time = time + f'.{ms}'
                
                for weblink in record['run']['links']:
