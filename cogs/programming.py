@@ -15,9 +15,17 @@ class Programming(commands.Cog):
    @commands.command()
    async def test(self, ctx):
       if ctx.message.author.id == WILL_ID:
+         db = MySQLdb.connect("localhost", config['database_user'], config['database_pass'], config['database_schema'])
+         cursor = db.cursor()
+
+         cursor.execute(f"SELECT * FROM pazaak WHERE discordid = {WILL_ID}")
+         print([i[0] for i in cursor.description][0])
+         print(cursor.fetchone()[0])
+
          #await ctx.message.author.send('Test')
-         msg = await self.client.get_channel(834261336971673611).send(f"If you stream on Twitch and would like to have announcements in this discord when you go live react with :purple_heart:. (Be sure your twitch is connected in {self.client.get_channel(829917630579867759).mention})")
-         await msg.add_reaction("💜")
+         
+         #msg = await self.client.get_channel(834261336971673611).send(f"If you stream on Twitch and would like to have announcements in this discord when you go live react with :purple_heart:. (Be sure your twitch is connected in {self.client.get_channel(829917630579867759).mention})")
+         #await msg.add_reaction("💜")
 
    #Get Text Channel ID
    @commands.command(aliases=['textid'])

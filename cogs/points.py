@@ -16,7 +16,7 @@ class Points(commands.Cog):
    @commands.Cog.listener()
    async def on_message(self, message):
       if message.channel.id not in invalid_channels and message.author.id != config['bot_id']:
-         db = MySQLdb.connect("localhost", "root", config['database_pass'], config['database_schema'])
+         db = MySQLdb.connect("localhost", config['database_user'], config['database_pass'], config['database_schema'])
          cursor = db.cursor()
 
          try:

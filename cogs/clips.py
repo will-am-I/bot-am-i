@@ -26,7 +26,7 @@ class Clips(commands.Cog):
       with urllib.request.urlopen(request) as clipsjson:
          clipsinfo = json.loads(clipsjson.read().decode())
 
-      db = MySQLdb.connect("localhost", "root", config['database_pass'], config['database_schema'])
+      db = MySQLdb.connect("localhost", config['database_user'], config['database_pass'], config['database_schema'])
       cursor = db.cursor()
 
       try:

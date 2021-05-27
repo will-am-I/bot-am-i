@@ -23,7 +23,7 @@ class Streams(commands.Cog):
       print("\n")
       print(datetime.now().strftime("%m/%d/%Y, %H:%M:%S"))
       print("streams -> loop")
-      db = MySQLdb.connect("localhost", "root", config['database_pass'], config['database_schema'])
+      db = MySQLdb.connect("localhost", config['database_user'], config['database_pass'], config['database_schema'])
       cursor = db.cursor()
 
       try:

@@ -37,7 +37,7 @@ class Connection(commands.Cog):
 
          else:
             if userinfo['data']:
-               db = MySQLdb.connect("localhost", "root", config['database_pass'], config['database_schema'])
+               db = MySQLdb.connect("localhost", config['database_user'], config['database_pass'], config['database_schema'])
                cursor = db.cursor()
                userinfo = userinfo['data'][0]
 
