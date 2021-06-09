@@ -107,8 +107,8 @@ class SRC(commands.Cog):
                      
                      for variable in stageinfo['data']:
                         if variable['is-subcategory'] == True and variable['id'] in list(record['run']['values'].keys()):
-                           variables += variable['values']['values'][record['run']['values'][variable['id']]]['lable'] + ", "
-                           cursor.execure(f"UPDATE src_pbs SET variableid{i} = '{record['run']['values'][variable['id']]}' WHERE runid = '{record['run']['id']}'")
+                           variables += variable['values']['values'][record['run']['values'][variable['id']]]['label'] + ", "
+                           cursor.execute(f"UPDATE src_pbs SET variableid{i} = '{record['run']['values'][variable['id']]}' WHERE runid = '{record['run']['id']}'")
                            i += 1
                      
                      category = f"{levelinfo['data']['name']} ({variables[:-2]})"
