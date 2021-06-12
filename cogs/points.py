@@ -15,7 +15,7 @@ class Points(commands.Cog):
 
    @commands.Cog.listener()
    async def on_message(self, message):
-      if message.channel.id not in invalid_channels and message.author.id != config['bot_id']:
+      if message.channel.id not in invalid_channels and message.author.id != config['bot_id'] and message.author.id != 669228505128501258:
          db = MySQLdb.connect("localhost", config['database_user'], config['database_pass'], config['database_schema'])
          cursor = db.cursor()
 
@@ -47,8 +47,19 @@ class Points(commands.Cog):
       pass
 
    @commands.command()
-   async def coins(self, ctx):
-      pass
+   async def balance(self, ctx):
+      db = MySQLdb.connect("localhost", config['database_user'], config['database_pass'], config['database_schema'])
+      cursor = db.cursor()
+
+      try:
+         cursor.execute(f"SELECT coins FROM member_rank WHERE discordid = {ctx.message.author.id}")
+         if cursor.rowcount > 0:
+            credits = cursor.fetchone()[0]
+            await ctx.send(f"{ctx.message.author.mention}, you currently have {credits} credits.")
+      except Exception as e:
+         print(str(e))
+
+      db.close()
 
 def setup (client):
    client.add_cog(Points(client))

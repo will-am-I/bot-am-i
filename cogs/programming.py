@@ -15,12 +15,9 @@ class Programming(commands.Cog):
    @commands.command()
    async def test(self, ctx):
       if ctx.message.author.id == WILL_ID:
-         db = MySQLdb.connect("localhost", config['database_user'], config['database_pass'], config['database_schema'])
-         cursor = db.cursor()
-
-         cursor.execute(f"SELECT * FROM pazaak WHERE discordid = {WILL_ID}")
-         print([i[0] for i in cursor.description][0])
-         print(cursor.fetchone()[0])
+         await ctx.send(ctx.message.author.mention)
+         #print([i[0] for i in cursor.description][0])
+         #print(cursor.fetchone()[0])
 
          #await ctx.message.author.send('Test')
          
