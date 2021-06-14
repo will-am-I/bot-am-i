@@ -52,19 +52,27 @@ class PazaakStore(commands.Cog):
 
             if credits >= cards[card][1]:
                if card in specialCards:
-                  cursor.execute(f"SELECT wins, wins + losses AS games FROM pazaak WHERE discordid = {ctx.message.author.id}")
-                  results = cursor.fetchone()
-                  
-                  if results[1] < specialCards[card][1]:
-                     await ctx.send("You have not played enough games to buy this card.")
-                  elif results[0] < specialCards[card][0]:
-                     await ctx.send("You have not won enough games to buy this card.")
+                  cursor.execute(f"SELECT {cards[card][0]} FROM pazaak WHERE discordid = {ctx.message.author.id}")
+                  amount = cursor.fetchone()[0]
+
+                  if amount >= 1:
+                     if amount > 1:
+                        cursor.execute(f"UPDATE pazaak SET {cards[card][0]} = 1 WHERE discordid = {ctx.message.author.id}")
+                     await ctx.send("You may only own 1 of these cards.")
                   else:
-                     cursor.execute(f"UPDATE member_rank SET coins = coins - {cards[card][1]} WHERE discordid = {ctx.message.author.id}")
-                     db.commit()
-                     cursor.execute(f"UPDATE pazaak SET {cards[card][0]} = {cards[card][0]} + 1 WHERE discordid = {ctx.message.author.id}")
-                     db.commit()
-                     await ctx.send(f"[{card}] has been added to your deck.")
+                     cursor.execute(f"SELECT wins, wins + losses AS games FROM pazaak WHERE discordid = {ctx.message.author.id}")
+                     results = cursor.fetchone()
+                     
+                     if results[1] < specialCards[card][1]:
+                        await ctx.send("You have not played enough games to buy this card.")
+                     elif results[0] < specialCards[card][0]:
+                        await ctx.send("You have not won enough games to buy this card.")
+                     else:
+                        cursor.execute(f"UPDATE member_rank SET coins = coins - {cards[card][1]} WHERE discordid = {ctx.message.author.id}")
+                        db.commit()
+                        cursor.execute(f"UPDATE pazaak SET {cards[card][0]} = {cards[card][0]} + 1 WHERE discordid = {ctx.message.author.id}")
+                        db.commit()
+                        await ctx.send(f"[{card}] has been added to your deck.")
                else:
                   cursor.execute(f"UPDATE member_rank SET coins = coins - {cards[card][1]} WHERE discordid = {ctx.message.author.id}")
                   db.commit()
