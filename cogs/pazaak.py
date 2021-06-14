@@ -395,67 +395,6 @@ class Pazaak(commands.Cog):
       self.content = "Type !end to end your turn, !stand to keep your hand, or !play <card> <+/-> to play one of your side deck cards.\nTo play a side deck card be sure to use the brackets and only put '+' or '-' after if the card is a '+/-' card or tiebreaker card.\nFor example \"!play [+2]\" or \"!play [+/-4] -\" or \"!play [T] +\"."
 
    @commands.command()
-   async def pazaakrank (self, ctx):
-      db = MySQLdb.connect("localhost", config['database_user'], config['database_pass'], config['database_schema'])
-      cursor = db.cursor()
-
-      try:
-         cursor.execute(f"SELECT * FROM pazaak WHERE discordid = {ctx.message.author.id}")
-         if cursor.rowcount > 0:
-            cursor.execute("SELECT discordid, wins, losses FROM pazaak ORDER BY wins DESC, losses ASC")
-            results = cursor.fetchall()
-            
-            i = 0
-            for result in results:
-               i += 1
-               if result[0] == ctx.message.author.id:
-                  place = str(i)
-                  if place.endswith("1") and not place.endswith("11"):
-                     place += "st"
-                  elif place.endswith("2") and not place.endswith("12"):
-                     place += "nd"
-                  elif place.endswith("3") and not place.endswith("13"):
-                     place += "rd"
-                  else:
-                     place += "th"
-
-                  embed = discord.Embed(title=f"{ctx.message.author.name}'s Pazaak Rank", colour=discord.Colour(0x4e7e8a), description=f"You are {place} place on the leaderboard.")
-                  embed.set_thumbnail(url=ctx.message.author.avatar_url)
-                  embed.add_field(name="Wins", value=result[1])
-                  embed.add_field(name="Losses", value=result[2])
-                  await ctx.send(embed=embed)
-                  break
-         else:
-            await ctx.send(f"{ctx.message.author.mention}, you currently don't have a pazaak rank since you have never played a game. Go to {self.client.get_channel(847627259275116554).mention} and start your first game!")
-      except Exception as e:
-         print(str(e))
-      
-      db.close()
-
-   @commands.command()
-   async def pazaaktop (self, ctx):
-      db = MySQLdb.connect("localhost", config['database_user'], config['database_pass'], config['database_schema'])
-      cursor = db.cursor()
-
-      try:
-         cursor.execute("SELECT m.discordname, p.wins, p.losses FROM pazaak p INNER JOIN member_rank m ON p.discordid = m.discordid ORDER BY p.wins DESC, p.losses ASC")
-         if cursor.rowcount < 10:
-            rows = cursor.rowcount
-         else:
-            rows = 10
-         results = cursor.fetchall()
-
-         leaderboard = ""
-         for i in range(rows):
-            leaderboard += f"**{i+1}.**\t{results[i][0]}\t{results[i][1]}/{results[i][2]}\n"
-
-         await ctx.send(embed=discord.Embed(title="Pazaak Leaderboard", colour=discord.Colour(0x4e7e8a), description=leaderboard))
-      except Exception as e:
-         print(str(e))
-
-      db.close()
-
-   @commands.command()
    async def pazaak (self, ctx, player2 : discord.Member = None, bet="50"):
       if ctx.message.channel.id == 847627259275116554:
          if player2 is None:
@@ -467,7 +406,7 @@ class Pazaak(commands.Cog):
             wager = int(bet)
 
             if wager < 50:
-               await ctx.send(f"{player1.mention}, you have to bet at least 50 coins to play pazaak.")
+               await ctx.send(f"{player1.mention}, you have to bet at least 50 credits to play pazaak.")
             else:
                db = MySQLdb.connect("localhost", config['database_user'], config['database_pass'], config['database_schema'])
                cursor = db.cursor()
@@ -479,11 +418,11 @@ class Pazaak(commands.Cog):
                   p2coins = cursor.fetchone()[0]
 
                   if wager > p1coins and wager > p2coins:
-                     await ctx.send(f"{player1.mention}, neither you nor {player2.mention} have enough coins for a {wager}-coin bet.")
+                     await ctx.send(f"{player1.mention}, neither you nor {player2.mention} have enough credits for a {wager}-credit bet.")
                   elif wager > p1coins:
-                     await ctx.send(f"{player1.mention}, you don't have enough coins to bet {wager} coins.")
+                     await ctx.send(f"{player1.mention}, you don't have enough credits to bet {wager} credits.")
                   elif wager > p1coins:
-                     await ctx.send(f"{player1.mention}, {player2.mention} doesn't have enough coins to bet {wager} coins.")
+                     await ctx.send(f"{player1.mention}, {player2.mention} doesn't have enough credits to bet {wager} credits.")
                   else:
                      self.player1 = player1
                      self.player2 = player2
@@ -505,7 +444,7 @@ class Pazaak(commands.Cog):
             self.game = Game(self.player1, self.player2, self.bet)
             await ctx.send(f"{self.player1.mention}, {self.player2.mention} has accepted the challenge! Please see your DM's for side deck selection.")
 
-            content = "Type 'add' or 'remove', the cards you want as shown in brackets, inlcude the brackets, and the number of cards to add or remove (for example: \"add [+/-3] 2\" or \"remove [-2] 1\").\nFor special cards type \"[T]\" for Tiebreaker, \"[D]\" for Double, \"[F2/4]\" for Flip 2/4, and \"[F3/6]\" for Flip 3/6.\nType 'done' when you've finialized your selection.\nYou may also type 'use last' to select your last chosen side deck."
+            content = "Type 'add' or 'remove', the cards you want as shown in brackets, inlcude the brackets, and the number of cards to add or remove (for example: \"add [+/-3] 2\" or \"remove [-2] 1\").\nFor special cards type \"[T]\" for Tiebreaker, \"[D]\" for Double, \"[F2/4]\" for Flip 2/4, and \"[F3/6]\" for Flip 3/6.\nType 'done' when you've finialized your selection.\nYou may also type 'last' to select your last chosen side deck."
             user = self.client.get_user(self.player1.id)
             await user.send(content=content, embed=self.game.showCardOptions(PLAYER_1))
             user = self.client.get_user(self.player2.id)
@@ -533,9 +472,13 @@ class Pazaak(commands.Cog):
             try:
                action, card, amount = message.content.split(' ')
             except:
-               await message.channel.send("Your input was invalid. Please try again.")
+               try:
+                  action, card = message.content.split(' ')
+                  amount = 1
+               except:
+                  await message.channel.send("Your input was invalid. Please try again.")
 
-         if action == "done" or action == "use last" or (card in cardOptions and (action == "add" or action == "remove")):
+         if action == "done" or action == "last" or (card in cardOptions and (action == "add" or action == "remove")):
             if message.author.id == self.player1.id and not self.game.finishedSelection(PLAYER_1):
                currentPlayer = PLAYER_1
             if message.author.id == self.player2.id and not self.game.finishedSelection(PLAYER_2):
@@ -548,7 +491,7 @@ class Pazaak(commands.Cog):
                else:
                   await message.channel.send("You need to select 10 cards before moving on.")
             
-            if action == "use last":
+            if action == "last":
                db = MySQLdb.connect("localhost", config['database_user'], config['database_pass'], config['database_schema'])
                cursor = db.cursor()
 
@@ -619,7 +562,7 @@ class Pazaak(commands.Cog):
          self.cardPlayed = False
          self.game.endTurn()
          if await turnEnd(self, ctx):
-            await ctx.send(content=self.content, embed=self.game.displayBoard())
+            await ctx.send(embed=self.game.displayBoard())
       else:
          await ctx.send(f"{ctx.message.author.mention}, you can't play for {self.game.mentionCurrentPlayer()}.")
 
@@ -629,7 +572,7 @@ class Pazaak(commands.Cog):
          self.cardPlayed = False
          self.game.stand()
          if await turnEnd(self, ctx):
-            await ctx.send(content=self.content, embed=self.game.displayBoard())
+            await ctx.send(embed=self.game.displayBoard())
       else:
          await ctx.send(f"{ctx.message.author.mention}, you can't play for {self.game.mentionCurrentPlayer()}.")
 
@@ -664,7 +607,7 @@ class Pazaak(commands.Cog):
                await ctx.send("There was a mistake in your play input. Please try again using the proper formatting.")
 
             if await turnEnd(self, ctx):
-               await ctx.send(content=self.content, embed=self.game.displayBoard())
+               await ctx.send(embed=self.game.displayBoard())
       else:
          await ctx.send(f"{ctx.message.author.mention}, you can't play for {self.game.mentionCurrentPlayer()}.")
 
@@ -678,6 +621,7 @@ async def turnEnd (pazaak, ctx):
          await ctx.send(content=pazaak.game.declareRoundWinner(), embed=pazaak.game.displayBoard())
          if pazaak.game.gameOver():
             await ctx.send(pazaak.game.declareGameWinner())
+            pazaak.game = None
             return False
       else:
          await ctx.send(content="Round tied!", embed=pazaak.game.displayBoard())

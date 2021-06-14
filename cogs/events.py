@@ -20,7 +20,7 @@ class Events(commands.Cog):
    @commands.Cog.listener()
    async def on_member_join(self, member):
       embed=discord.Embed(title="Welcome to the ThumbWars!", description=f"Everyone say hello to **{member.name}**", color=0x55c5c6)
-      avatar = member.avatar_url + f'?rand={randint(0, 999999)}'
+      avatar = f"{member.avatar_url}?rand={randint(0, 999999)}"
       embed.set_thumbnail(url=avatar)
       await self.client.get_channel(585867244056346646).send(embed=embed)
       print(f'{member} has joined the server.')

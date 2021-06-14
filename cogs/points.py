@@ -15,7 +15,7 @@ class Points(commands.Cog):
 
    @commands.Cog.listener()
    async def on_message(self, message):
-      if message.channel.id not in invalid_channels and message.author.id != config['bot_id'] and message.author.id != 669228505128501258:
+      if message.channel.id not in invalid_channels and message.author.id != config['bot_id'] and message.author.id != 669228505128501258 and "pazaakbuy" not in message.content:
          db = MySQLdb.connect("localhost", config['database_user'], config['database_pass'], config['database_schema'])
          cursor = db.cursor()
 
@@ -24,15 +24,16 @@ class Points(commands.Cog):
 
             if cursor.rowcount > 0:
                cursor.execute(f"UPDATE member_rank SET points = points + 1 WHERE discordid = {message.author.id}")
+               db.commit()
             else:
                cursor.execute(f"INSERT INTO member_rank (discordname, discordid, points) VALUES ('{message.author.name}', {message.author.id}, 1)")
+               db.commit()
 
             cursor.execute(f"SELECT DATE_FORMAT(coinlock, '%Y-%m-%d %T') FROM member_rank WHERE discordid = {message.author.id}")
             stamp = cursor.fetchone()[0]
             if datetime.strptime(stamp, "%Y-%m-%d %H:%M:%S") < datetime.utcnow():
                coinlock = (datetime.utcnow() + timedelta(seconds=30)).strftime("%Y-%m-%d %H:%M:%S")
                cursor.execute(f"UPDATE member_rank SET coins = coins + {randint(1,5)}, coinlock = STR_TO_DATE('{coinlock}', '%Y-%m-%d %T') WHERE discordid = {message.author.id}")
-
             db.commit()
          except Exception as e:
             db.rollback()
