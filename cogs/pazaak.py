@@ -628,6 +628,10 @@ async def turnEnd (pazaak, ctx):
       await ctx.send(pazaak.game.nextRound())
    elif not pazaak.cardPlayed:
       pazaak.game.setCard(randint(1,10))
+      if pazaak.game.turnOver():
+         pazaak.game.stand()
+         pazaak.cardPlayed = False
+         await ctx.send(embed=pazaak.game.displayBoard())
 
    return True
 

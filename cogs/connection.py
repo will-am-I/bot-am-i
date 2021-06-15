@@ -90,14 +90,13 @@ class Connection(commands.Cog):
                            unclaimed = False
                      else:
                         print("connection -> no rows at all")
-                        cursor.execute(f"INSERT INTO member_rank (discordname, discordid, twitchname, twitchid) VALUES ('{message.author.name}', {message.author.id}, '{userinfo['display_name']}', {userinfo['id']}")
+                        print(message.author.name, message.author.id, userinfo['display_name'], userinfo['id'])
+                        cursor.execute(f"INSERT INTO member_rank (discordname, discordid, twitchname, twitchid) VALUES ('{message.author.name}', {message.author.id}, '{userinfo['display_name']}', {userinfo['id']})")
 
                   db.commit()
 
                except Exception as e:
                   db.rollback()
-                  user = self.client.get_user(320246151196704768)
-                  await user.send('Error occurred when updating member roles.')
                   print(str(e))
 
                else:
