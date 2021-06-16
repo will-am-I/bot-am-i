@@ -466,7 +466,7 @@ class Pazaak(commands.Cog):
          cardOptions = ["[+1]", "[+2]", "[+3]", "[+4]", "[+5]", "[+6]", "[-1]", "[-2]", "[-3]", "[-4]", "[-5]", "[-6]", "[+/-1]", "[+/-2]", "[+/-3]", "[+/-4]", "[+/-5]", "[+/-6]", "[F2/4]", "[F3/6]", "[D]", "[T]"]
          action = ""
 
-         if message.content == "done" or message.content == "use last":
+         if message.content == "done" or message.content == "last":
             action = message.content
          else:
             try:
