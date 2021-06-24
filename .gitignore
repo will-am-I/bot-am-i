@@ -115,3 +115,4 @@ dmypy.json
 cogs/config.json
 start.bat
 .vscode/settings.json
+cogs/programming.py

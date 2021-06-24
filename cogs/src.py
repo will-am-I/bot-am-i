@@ -1,6 +1,6 @@
 import discord, urllib.request, json, MySQLdb
 from discord.ext import commands, tasks
-from datetime import datetime, timedelta
+from datetime import datetime
 from random import randint
 
 with open('./cogs/config.json') as data:

@@ -1,4 +1,4 @@
-import discord, urllib.request, json, MySQLdb
+import urllib.request, json, MySQLdb
 from discord.ext import commands, tasks
 from datetime import datetime
 

@@ -1,6 +1,10 @@
 import discord, urllib.request, requests, json, MySQLdb
+from discord import file
+from discord import embeds
 from discord.ext import commands
 from datetime import datetime
+from PIL import Image, ImageDraw, ImageFont
+from random import randint
 
 WILL_ID = 320246151196704768
 with open('./cogs/config.json') as data:
@@ -15,7 +19,9 @@ class Programming(commands.Cog):
    @commands.command()
    async def test(self, ctx):
       if ctx.message.author.id == WILL_ID:
-         await ctx.send(ctx.message.author.mention)
+         categories = [category[0].name for category in ctx.message.guild.by_category()]
+         print(categories)
+         #await ctx.send(ctx.message.author.mention)
          #print([i[0] for i in cursor.description][0])
          #print(cursor.fetchone()[0])
 
