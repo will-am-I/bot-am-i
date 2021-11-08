@@ -1,5 +1,5 @@
-import discord, json, MySQLdb, urllib.request, requests
-from discord.ext import commands
+import json, mysql.connector, urllib.request
+from discord.ext import commands, tasks
 from discord.utils import get
 
 with open('./cogs/config.json') as data:
@@ -9,6 +9,10 @@ class Connection(commands.Cog):
 
    def __init__ (self, client):
       self.client = client
+      #self.checkFollowers.start()
+
+   #def cog_unload (self):
+      #self.checkFollowers.stop()
 
    @commands.Cog.listener()
    async def on_message(self, message):
@@ -37,24 +41,23 @@ class Connection(commands.Cog):
 
          else:
             if userinfo['data']:
-               db = MySQLdb.connect("localhost", config['database_user'], config['database_pass'], config['database_schema'])
+               db = mysql.connector.connect(host="localhost", username=config['database_user'], password=config['database_pass'], database=config['database_schema'])
                cursor = db.cursor()
                userinfo = userinfo['data'][0]
 
                try:
                   cursor.execute(f"SELECT twitchid FROM member_rank WHERE discordid = {message.author.id}")
+                  twitchid = cursor.fetchone()[0]
 
                   if cursor.rowcount > 0:
                      print("connection -> found discord row")
-                     twitchid = cursor.fetchone()[0]
-
                      if twitchid == 0:
                         print("connection -> discord no twitch")
                         cursor.execute(f"SELECT discordname, discordid, points, coins FROM member_rank WHERE twitchid = {userinfo['id']}")
+                        member = cursor.fetchone()
 
                         if cursor.rowcount > 0:
                            print("connection -> found twitch row")
-                           member = cursor.fetchone()
                            discordname = member[0]
                            discordid = member[1]
                            points = member[2]
@@ -74,10 +77,10 @@ class Connection(commands.Cog):
                   else:
                      print("connection -> no discord row")
                      cursor.execute(f"SELECT twitchid, discordid, discordname FROM member_rank WHERE twitchid = {userinfo['id']}")
+                     member = cursor.fetchone()
 
                      if cursor.rowcount > 0:
                         print("connection -> found twitch row")
-                        member = cursor.fetchone()
                         discordid = member[1]
                         discordname = member[2]
 

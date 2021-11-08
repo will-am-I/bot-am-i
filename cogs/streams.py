@@ -1,4 +1,4 @@
-import discord, urllib.request, json, MySQLdb
+import discord, urllib.request, json, mysql.connector
 from discord.ext import commands, tasks
 from discord.utils import get
 from datetime import datetime, timedelta
@@ -23,19 +23,27 @@ class Streams(commands.Cog):
       print("\n")
       print(datetime.now().strftime("%m/%d/%Y, %H:%M:%S"))
       print("streams -> loop")
-      db = MySQLdb.connect("localhost", config['database_user'], config['database_pass'], config['database_schema'])
+      db = mysql.connector.connect(host="localhost", username=config['database_user'], password=config['database_pass'], database=config['database_schema'])
       cursor = db.cursor()
 
       try:
-         for member in self.client.get_all_members():
-            liverole = get(member.guild.roles, id=834268646603620403)
+         guild = self.client.get_guild(583858747420704779)
+         print(guild.id, guild.name)
+         print(guild.fetch_members())
+         for member in guild.members:
+            print(f"streams -> {member.id}, {member.name}")
+            liverole = get(guild.roles, id=834268646603620403)
             twitchid = 0
             roles = [role.id for role in member.roles]
 
             if 834268329371631646 in roles:
+               print("streams -> has streamer role")
                cursor.execute(f"SELECT twitchid FROM member_rank WHERE discordid = {member.id} AND twitchid != 0")
+               result = cursor.fetchone()
+               
                if cursor.rowcount > 0:
-                  twitchid = cursor.fetchone()[0]
+                  print("streams -> found twitch id")
+                  twitchid = result[0]
 
                   try:
                      url = f'https://api.twitch.tv/helix/streams?user_id={twitchid}'
@@ -45,6 +53,7 @@ class Streams(commands.Cog):
                      with urllib.request.urlopen(request) as streamjson:
                         streaminfo = json.loads(streamjson.read().decode())
                   except urllib.error.HTTPError as e:
+                     print("streams -> streaminfo failed")
                      self.client.unload_extension('cogs.streams')
                      if e.code == 401:
                         user = self.client.get_user(WILL_ID)
@@ -90,7 +99,7 @@ class Streams(commands.Cog):
                         if 834268646603620403 in roles:
                            await member.remove_roles(liverole)
                else:
-                  #await member.send("Please connect your twitch account in the discord so that a live announcement can be made.")
+                  await member.send("Please connect your twitch account in the connections channel so that a live announcement can be made. Let Will know if you have any questions.")
                   pass
       except Exception as e:
          print("checkCommunityStreams")

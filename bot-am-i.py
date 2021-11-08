@@ -2,7 +2,10 @@ import discord
 from discord.ext import commands
 import os, json
 
-client = commands.Bot(command_prefix = '!')
+intents = discord.Intents.default()
+intents.members = True
+
+client = commands.Bot(command_prefix = '!', intents=intents)
 client.remove_command('help')
 
 with open('./cogs/config.json') as data:

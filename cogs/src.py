@@ -1,4 +1,4 @@
-import discord, urllib.request, json, MySQLdb
+import discord, urllib.request, json, mysql.connector
 from discord.ext import commands, tasks
 from datetime import datetime
 from random import randint
@@ -20,13 +20,14 @@ class SRC(commands.Cog):
       print("\n")
       print(datetime.now().strftime("%m/%d/%Y, %H:%M:%S"))
       print("src -> loop")
-      db = MySQLdb.connect("localhost", config['database_user'], config['database_pass'], config['database_schema'])
+      db = mysql.connector.connect(host="localhost", username=config['database_user'], password=config['database_pass'], database=config['database_schema'])
       cursor = db.cursor()
 
       try:
          runs = []
          cursor.execute("SELECT runid FROM src_pbs")
-         for id in cursor.fetchall():
+         results = cursor.fetchall()
+         for id in results:
             runs.append(id[0])
          with urllib.request.urlopen('https://www.speedrun.com/api/v1/users/18q2o608/personal-bests') as pbjson:
             data = json.loads(pbjson.read().decode())['data']

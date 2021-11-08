@@ -1,4 +1,4 @@
-import discord, json, MySQLdb
+import discord, json, mysql.connector
 from datetime import datetime, timedelta
 from random import randint
 from discord.ext import commands
@@ -15,12 +15,13 @@ class Points(commands.Cog):
 
    @commands.Cog.listener()
    async def on_message(self, message):
-      if message.channel.id not in invalid_channels and message.author.id != config['bot_id'] and message.author.id != 669228505128501258 and "pazaakbuy" not in message.content:
-         db = MySQLdb.connect("localhost", config['database_user'], config['database_pass'], config['database_schema'])
+      if message.channel.id not in invalid_channels and message.author.id != config['bot_id'] and message.author.id != 669228505128501258:
+         db = mysql.connector.connect(host="localhost", username=config['database_user'], password=config['database_pass'], database=config['database_schema'])
          cursor = db.cursor()
 
          try:
             cursor.execute(f"SELECT * FROM member_rank WHERE discordid = {message.author.id}")
+            _ = cursor.fetchall()
 
             if cursor.rowcount > 0:
                cursor.execute(f"UPDATE member_rank SET points = points + 1 WHERE discordid = {message.author.id}")
@@ -49,13 +50,13 @@ class Points(commands.Cog):
 
    @commands.command()
    async def balance(self, ctx):
-      db = MySQLdb.connect("localhost", config['database_user'], config['database_pass'], config['database_schema'])
+      db = mysql.connector.connect(host="localhost", username=config['database_user'], password=config['database_pass'], database=config['database_schema'])
       cursor = db.cursor()
 
       try:
          cursor.execute(f"SELECT coins FROM member_rank WHERE discordid = {ctx.message.author.id}")
+         credits = cursor.fetchone()[0]
          if cursor.rowcount > 0:
-            credits = cursor.fetchone()[0]
             await ctx.send(f"{ctx.message.author.mention}, you currently have {credits} credits.")
       except Exception as e:
          print(str(e))

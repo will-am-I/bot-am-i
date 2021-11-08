@@ -1,4 +1,4 @@
-import urllib.request, json, MySQLdb
+import urllib.request, json, mysql.connector
 from discord.ext import commands, tasks
 from datetime import datetime
 
@@ -26,14 +26,15 @@ class Clips(commands.Cog):
       with urllib.request.urlopen(request) as clipsjson:
          clipsinfo = json.loads(clipsjson.read().decode())
 
-      db = MySQLdb.connect("localhost", config['database_user'], config['database_pass'], config['database_schema'])
+      db = mysql.connector.connect(host="localhost", username=config['database_user'], password=config['database_pass'], database=config['database_schema'])
       cursor = db.cursor()
 
       try:
          cursor.execute("SELECT clipid FROM twitch_clips")
+         results = cursor.fetchall()
 
          clips = []
-         for clip in cursor.fetchall():
+         for clip in results:
             clips.append(clip[0])
 
          for clip in clipsinfo['data']:

@@ -1,4 +1,4 @@
-import discord, json, MySQLdb
+import discord, json, mysql.connector
 from discord.ext import commands
 from random import randint
 
