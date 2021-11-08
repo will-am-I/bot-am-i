@@ -20,15 +20,8 @@ class Points(commands.Cog):
          cursor = db.cursor()
 
          try:
-            cursor.execute(f"SELECT * FROM member_rank WHERE discordid = {message.author.id}")
-            _ = cursor.fetchall()
-
-            if cursor.rowcount > 0:
-               cursor.execute(f"UPDATE member_rank SET points = points + 1 WHERE discordid = {message.author.id}")
-               db.commit()
-            else:
-               cursor.execute(f"INSERT INTO member_rank (discordname, discordid, points) VALUES ('{message.author.name}', {message.author.id}, 1)")
-               db.commit()
+            cursor.execute(f"UPDATE member_rank SET points = points + 1 WHERE discordid = {message.author.id}")
+            db.commit()
 
             cursor.execute(f"SELECT DATE_FORMAT(coinlock, '%Y-%m-%d %T') FROM member_rank WHERE discordid = {message.author.id}")
             stamp = cursor.fetchone()[0]
