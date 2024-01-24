@@ -15,7 +15,7 @@ class Events(commands.Cog):
    async def on_ready(self):
       #await self.client.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name="just a bot boy from a bot family" ))
       print('bot-am-i is here')
-      
+   
    #Member join
    @commands.Cog.listener()
    async def on_member_join(self, member):
