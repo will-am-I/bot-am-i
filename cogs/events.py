@@ -13,17 +13,29 @@ class Events(commands.Cog):
    #Ready
    @commands.Cog.listener()
    async def on_ready(self):
-      #await self.client.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name="just a bot boy from a bot family" ))
+      await self.client.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name="just a bot boy from a bot family" ))
       print('bot-am-i is here')
    
    #Member join
    @commands.Cog.listener()
    async def on_member_join(self, member):
-      #embed=discord.Embed(title="Welcome to the ThumbWars!", description=f"Everyone say hello to **{member.name}**", color=0x55c5c6)
-      #avatar = f"{member.avatar_url}?rand={randint(0, 999999)}"
-      #embed.set_thumbnail(url=avatar)
-      #await self.client.get_channel(585867244056346646).send(embed=embed)
-      print(f'{member} has joined the server.')
+      db = mysql.connector.connect(host="localhost", username=config['database_user'], password=config['database_pass'], database=config['database_schema'])
+      cursor = db.cursor()
+      
+      try:
+         cursor.execute(f"INSERT IGNORE INTO member_rank (discordname, discordid, points) VALUES ('{member.name}', {member.id}, 1)")
+         db.commit()
+      except Exception as e:
+         db.rollback()
+         print(str(e))
+      else:
+         embed=discord.Embed(title="Welcome to the ThumbWars!", description=f"Everyone say hello to **{member.name}**", color=0x55c5c6)
+         avatar = f"{member.avatar_url}?rand={randint(0, 999999)}"
+         embed.set_thumbnail(url=avatar)
+         await self.client.get_channel(585867244056346646).send(embed=embed)
+         print(f'{member} has joined the server.')
+
+      db.close()
       
    #Member leave
    @commands.Cog.listener()
