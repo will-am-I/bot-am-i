@@ -1,8 +1,7 @@
-import discord
+import discord, os, json, asyncio
 from discord.ext import commands
-import os, json
 
-intents = discord.Intents.default()
+intents = discord.Intents.all()
 intents.members = True
 
 client = commands.Bot(command_prefix = '!', intents=intents)
@@ -11,27 +10,33 @@ client.remove_command('help')
 with open('./cogs/config.json') as data:
    config = json.load(data)
 
+"""
 @client.command()
 async def load(ctx, extension):
    if ctx.message.author.id == 320246151196704768:
-      client.load_extension(f'cogs.{extension}')
+      await client.load_extension(f'cogs.{extension}')
       await ctx.send(f'{extension} has been loaded in')
    
 @client.command()
 async def unload(ctx, extension):
    if ctx.message.author.id == 320246151196704768:
-      client.unload_extension(f'cogs.{extension}')
+      await client.unload_extension(f'cogs.{extension}')
       await ctx.send(f'{extension} has been unloaded out')
    
 @client.command()
 async def reload(ctx, extension):
    if ctx.message.author.id == 320246151196704768:
-      client.unload_extension(f'cogs.{extension}')
-      client.load_extension(f'cogs.{extension}')
+      await client.unload_extension(f'cogs.{extension}')
+      await client.load_extension(f'cogs.{extension}')
       await ctx.send(f'{extension} has been reloaded')
-   
-for filename in os.listdir('./cogs'):
-   if filename.endswith('.py'):
-      client.load_extension(f'cogs.{filename[:-3]}')
+"""
+async def loadall(): 
+   for filename in os.listdir('./cogs'):
+      if filename.endswith('.py'):
+         await client.load_extension(f'cogs.{filename[:-3]}')
 
-client.run(config['discord_token'])
+async def main():
+   await loadall()
+   await client.start(config['discord_token'])
+
+asyncio.run(main())

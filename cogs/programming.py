@@ -3,7 +3,6 @@ from discord import file
 from discord import embeds
 from discord.ext import commands
 from datetime import datetime
-from PIL import Image, ImageDraw, ImageFont
 from random import randint
 
 WILL_ID = 320246151196704768
@@ -47,6 +46,7 @@ class Programming(commands.Cog):
       if ctx.message.author.id == WILL_ID:
          await ctx.send(f'{channel.id}')
 
+   """
    @commands.command()
    async def rules(self, ctx):
       if ctx.message.author.id == WILL_ID:
@@ -57,6 +57,7 @@ class Programming(commands.Cog):
          embed.add_field(name=":four:", value="If you have to ask weather or not you can say something, just assume the answer is no. If you have any other questions or concerns, please bring them up to Will or the mods.", inline=False)
          embed.add_field(name=":five:", value="Have fun!", inline=False)
          await self.client.get_channel(829916638949408799).send(embed=embed)
+   """
    
 def setup (client):
    client.add_cog(Programming(client))
