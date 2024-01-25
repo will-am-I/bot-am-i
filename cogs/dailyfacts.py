@@ -12,7 +12,7 @@ class DailyFacts(commands.Cog):
       self.getDailyFact.start()
    
    def cog_unload (self):
-      self.getDailyFact.stop()
+      self.getDailyFact.cancel()
 
    @tasks.loop(hours=24)
    async def getDailyFact (self):
@@ -28,7 +28,7 @@ class DailyFacts(commands.Cog):
          await self.client.get_channel(854921622012297256).send(embed=embed)
       except Exception as e:
          print(str(e))
-         pass
    
-def setup (client):
-   client.add_cog(DailyFacts(client))
+async def setup (client):
+   print("DailyFacts loaded")
+   await client.add_cog(DailyFacts(client))

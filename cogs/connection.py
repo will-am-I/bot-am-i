@@ -135,5 +135,6 @@ class Connection(commands.Cog):
                print("connection -> invalid username " + message.content)
                await message.channel.send(message.content + " is not a valid Twitch username")
 
-def setup (client):
-   client.add_cog(Connection(client))
+async def setup (client):
+   print("Connection loaded")
+   await client.add_cog(Connection(client))

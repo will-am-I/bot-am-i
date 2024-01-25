@@ -13,7 +13,7 @@ class SRC(commands.Cog):
       self.checkPersonalBests.start()
 
    def cog_unload (self):
-      self.checkPersonalBests.stop()
+      self.checkPersonalBests.cancel()
    
    @tasks.loop(minutes=10)
    async def checkPersonalBests (self):
@@ -157,5 +157,6 @@ class SRC(commands.Cog):
       
       db.close()
             
-def setup (client):
-   client.add_cog(SRC(client))
+async def setup (client):
+   print("SRC loaded")
+   await client.add_cog(SRC(client))

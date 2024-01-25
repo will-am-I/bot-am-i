@@ -16,7 +16,7 @@ class Streams(commands.Cog):
       self.checkCommunityStreams.start()
    
    def cog_unload (self):
-      self.checkCommunityStreams.stop()
+      self.checkCommunityStreams.cancel()
 
    @tasks.loop(minutes=5.0)
    async def checkCommunityStreams(self):
@@ -54,12 +54,12 @@ class Streams(commands.Cog):
                         streaminfo = json.loads(streamjson.read().decode())
                   except urllib.error.HTTPError as e:
                      print("streams -> streaminfo failed")
-                     self.client.unload_extension('cogs.streams')
                      if e.code == 401:
                         user = self.client.get_user(WILL_ID)
                         await user.send('Twitch API token has expired. Please visit https://reqbin.com/ to request a new one.\n\nURL is : https://id.twitch.tv/oauth2/token \n\nHeader is: {"client_id": twitch_id, "client_secret": twitch_secret, "grant_type": "client_credentials", "scope": "analytics:read:games channel:read:subscriptions user:read:broadcast"}\n\nWhen this is done, remember to load the cog.')
                      else:
                         print(f'Error: {e.code}')
+                     await self.client.unload_extension('cogs.streams')
                   else:
                      if streaminfo['data']:
                         streaminfo = streaminfo['data'][0]
@@ -107,5 +107,6 @@ class Streams(commands.Cog):
 
       db.close()
                
-def setup (client):
-   client.add_cog(Streams(client))
+async def setup (client):
+   print("Streams loaded")
+   await client.add_cog(Streams(client))

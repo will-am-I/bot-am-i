@@ -15,6 +15,7 @@ class Points(commands.Cog):
 
    @commands.Cog.listener()
    async def on_message(self, message):
+      """
       if message.channel.id not in invalid_channels and message.author.id != config['bot_id'] and message.author.id != 669228505128501258:
          db = mysql.connector.connect(host="localhost", username=config['database_user'], password=config['database_pass'], database=config['database_schema'])
          cursor = db.cursor()
@@ -36,6 +37,8 @@ class Points(commands.Cog):
             print(str(e))
 
          db.close()
+      """
+      pass
 
    @commands.command()
    async def rank(self, ctx):
@@ -56,5 +59,6 @@ class Points(commands.Cog):
 
       db.close()
 
-def setup (client):
-   client.add_cog(Points(client))
+async def setup (client):
+   print("Points loaded")
+   await client.add_cog(Points(client))

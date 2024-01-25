@@ -12,7 +12,7 @@ class Clips(commands.Cog):
       self.checkClips.start()
    
    def cog_unload (self):
-      self.checkClips.stop()
+      self.checkClips.cancel()
 
    @tasks.loop(minutes=2.0)
    async def checkClips (self):
@@ -52,5 +52,6 @@ class Clips(commands.Cog):
 
       db.close()
                
-def setup (client):
-   client.add_cog(Clips(client))
+async def setup (client):
+   print("Clips loaded")
+   await client.add_cog(Clips(client))

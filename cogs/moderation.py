@@ -37,5 +37,6 @@ class Moderation(commands.Cog):
                await ctx.send(f'{user.mention} unbanned')
                return
    
-def setup (client):
-   client.add_cog(Moderation(client))
+async def setup (client):
+   print("Moderation loaded")
+   await client.add_cog(Moderation(client))

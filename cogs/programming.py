@@ -28,7 +28,7 @@ class Programming(commands.Cog):
          
          #msg = await self.client.get_channel(834261336971673611).send(f"If you stream on Twitch and would like to have announcements in this discord when you go live react with :purple_heart:. (Be sure your twitch is connected in {self.client.get_channel(829917630579867759).mention})")
          #await msg.add_reaction("💜")
-
+   
    #Get Text Channel ID
    @commands.command(aliases=['textid'])
    async def textchannelid(self, ctx, channel : discord.TextChannel):
@@ -58,5 +58,6 @@ class Programming(commands.Cog):
          embed.add_field(name=":five:", value="Have fun!", inline=False)
          await self.client.get_channel(829916638949408799).send(embed=embed)
    
-def setup (client):
-   client.add_cog(Programming(client))
+async def setup (client):
+   print("Programming loaded")
+   await client.add_cog(Programming(client))

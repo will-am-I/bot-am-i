@@ -32,5 +32,6 @@ class Roles(commands.Cog):
          role = get(message.guild.roles, id=669228505128501258)
          await message.author.add_roles(role)
 
-def setup (client):
-   client.add_cog(Roles(client))
+async def setup (client):
+   print("Roles loaded")
+   await client.add_cog(Roles(client))

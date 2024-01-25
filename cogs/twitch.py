@@ -16,7 +16,7 @@ class Twitch(commands.Cog):
       self.checkStream.start()
    
    def cog_unload (self):
-      self.checkStream.stop()
+      self.checkStream.cancel()
 
    @tasks.loop(minutes=5.0)
    async def checkStream (self):
@@ -32,12 +32,12 @@ class Twitch(commands.Cog):
             streaminfo = json.loads(streamurl.read().decode())
 
       except urllib.error.HTTPError as e:
-         self.client.unload_extension('cogs.twitch')
          if e.code == 401:
             user = self.client.get_user(WILL_ID)
             await user.send('Twitch API token has expired. Please visit https://reqbin.com/ to request a new one.\n\nURL is : https://id.twitch.tv/oauth2/token \n\nHeader is: {"client_id": twitch_id, "client_secret": twitch_secret, "grant_type": "client_credentials", "scope": "analytics:read:games channel:read:subscriptions user:read:broadcast"}\n\nWhen this is done, remember to load the cog.')
          else:
             print(f'Error: {e.code}')
+         await self.client.unload_extension('cogs.twitch')
       else:
          if streaminfo['data']:
             streaminfo = streaminfo['data'][0]
@@ -71,5 +71,6 @@ class Twitch(commands.Cog):
                await self.client.get_channel(585925326144667655).send(content='<@&583864250410336266>, your favorite speedrunner is now live! Come hang out!', embed=embed)
                print("twitch -> made announcement")
 
-def setup (client):
-   client.add_cog(Twitch(client))
+async def setup (client):
+   print("Twitch loaded")
+   await client.add_cog(Twitch(client))
